@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FC 27 Fiyat Aracı — Tasarım Önizleme</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .demo-section { max-width: 1280px; margin: 0 auto; padding: 12px 32px 40px; }
+    .demo-section h3 {
+      font-family: var(--font-display); font-weight: 700; font-size: 13px;
+      letter-spacing: .18em; text-transform: uppercase; color: var(--gold);
+      margin: 32px 0 12px; padding-left: 6px; border-left: 3px solid var(--gold);
+    }
+    .demo-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"><span></span><span></span><span></span></div>
+      <div class="brand-text">
+        <h1>FC&nbsp;27 <em>Fiyat Aracı</em></h1>
+        <p class="brand-sub muted small">katalog · 18.492 oyuncu</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="live"><span class="dot on"></span><span class="live-label">Canlı</span></div>
+      <label class="switch">
+        <input type="checkbox" checked>
+        <span class="switch-track"><span class="switch-knob"></span></span>
+        <span class="switch-text">
+          <span class="switch-title">Klasör izleme açık</span>
+          <span class="switch-sub muted small">C:\Users\…\Screenshots</span>
+        </span>
+      </label>
+      <label class="switch">
+        <input type="checkbox">
+        <span class="switch-track"><span class="switch-knob"></span></span>
+        <span class="switch-text">
+          <span class="switch-title">Pano</span>
+          <span class="switch-sub muted small">Win + Shift + S</span>
+        </span>
+      </label>
+    </div>
+  </header>
+
+  <div class="demo-section">
+
+    <!-- ═════════ 1. Bekleme durumu ═════════ -->
+    <h3>1 · Bekleme durumu</h3>
+    <main class="layout">
+      <aside class="side">
+        <section class="panel side-panel">
+          <header class="panel-head">
+            <span class="eyebrow">Manuel düzeltme</span>
+            <h2>Kart yanlış mı? Düzelt.</h2>
+            <p class="muted small">Otomatik okuma her zaman yüzde yüz isabetli olmaz. Adıyla ara ya da <b>FUT.GG</b> linki yapıştır.</p>
+          </header>
+          <div class="fix-block">
+            <label class="field">
+              <span class="field-label">Oyuncu adı</span>
+              <div class="field-row">
+                <input type="search" placeholder="ör. Zidane">
+                <button class="btn btn-primary">Ara</button>
+              </div>
+            </label>
+            <label class="field">
+              <span class="field-label">Kart linki</span>
+              <div class="field-row">
+                <input type="url" placeholder="https://www.fut.gg/players/…">
+                <button class="btn">Ekle</button>
+              </div>
+            </label>
+            <p class="msg"></p>
+            <div class="side-hint">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 8v5m0 3.5v.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4"/></svg>
+              <p class="muted small">FUTBIN bot koruması yüzünden bazen okunmaz — bu durumda <b>FUT.GG</b> linki kullan.</p>
+            </div>
+          </div>
+        </section>
+      </aside>
+      <section class="main-col">
+        <div class="stage">
+          <div class="empty state-empty">
+            <div class="pulse-ring"><span></span><span></span><span></span></div>
+            <p class="state-title">Ekran görüntüsü bekleniyor</p>
+            <p class="muted state-sub">Oyun sırasında <kbd>Win</kbd><span>+</span><kbd>Shift</kbd><span>+</span><kbd>S</kbd> ile kartı kopyala ya da izlenen klasöre bir görsel bırak. Kart otomatik tanınır.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ═════════ 2. Başarılı sonuç ═════════ -->
+    <h3>2 · Başarılı sonuç</h3>
+    <main class="layout">
+      <aside class="side">
+        <section class="panel side-panel">
+          <header class="panel-head">
+            <span class="eyebrow">Manuel düzeltme</span>
+            <h2>Kart yanlış mı? Düzelt.</h2>
+            <p class="muted small">Otomatik okuma her zaman yüzde yüz isabetli olmaz.</p>
+          </header>
+          <div class="fix-block">
+            <label class="field"><span class="field-label">Oyuncu adı</span>
+              <div class="field-row"><input type="search" value="Zidane"><button class="btn btn-primary">Ara</button></div>
+            </label>
+            <label class="field"><span class="field-label">Kart linki</span>
+              <div class="field-row"><input type="url" placeholder="https://www.fut.gg/players/…"><button class="btn">Ekle</button></div>
+            </label>
+            <p class="msg ok">Doğru kartı tıkla.</p>
+          </div>
+        </section>
+      </aside>
+      <section class="main-col">
+        <div class="stage">
+          <article class="card-view">
+            <div class="card-art">
+              <div class="card-art-glow"></div>
+              <div class="art-fallback"><svg viewBox="0 0 64 80" fill="none"><rect x="4" y="4" width="56" height="72" rx="10" stroke="currentColor" stroke-width="1.5" opacity=".35"/><circle cx="32" cy="30" r="10" stroke="currentColor" stroke-width="1.5" opacity=".45"/><path d="M14 66c3-10 12-14 18-14s15 4 18 14" stroke="currentColor" stroke-width="1.5" opacity=".45" stroke-linecap="round"/></svg></div>
+            </div>
+            <div class="card-body">
+              <header class="idline">
+                <div class="rating-badge"><span class="rating">96</span></div>
+                <div class="id-text">
+                  <h2 class="pname">Zinedine Zidane</h2>
+                  <p class="meta"><span class="pos">CAM</span><span class="sep">•</span><span class="version">Ultimate Icon</span></p>
+                </div>
+              </header>
+              <section class="price-box">
+                <div class="price-main">
+                  <span class="label">En düşük BIN</span>
+                  <div class="price-line"><span class="coin"></span><span class="price">2.480.000</span></div>
+                </div>
+                <div class="price-side">
+                  <div class="price-net">
+                    <span class="label">%5 vergi sonrası eline geçen</span>
+                    <div class="net">2.356.000</div>
+                  </div>
+                  <div class="srcline"><span class="src">FUT.GG · PC</span><span class="dot-sep"></span><span class="age">2 dk önce</span></div>
+                </div>
+              </section>
+              <p class="note small"></p>
+              <div class="actions">
+                <button class="btn refresh"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 0 1 13.7-5.6M20 12a8 8 0 0 1-13.7 5.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M17 3v4h-4M7 21v-4h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Fiyatı yenile</button>
+                <a class="btn ghost open">Kaynağı aç <svg viewBox="0 0 24 24" fill="none"><path d="M13 5h6v6M19 5l-8 8M10 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+              </div>
+            </div>
+          </article>
+          <section class="calc-box panel" style="margin-top:20px">
+            <header class="panel-head compact">
+              <span class="eyebrow">Alış Fiyatı & Kâr</span>
+              <h2>Kâr/Zarar hesabı</h2>
+            </header>
+            <div class="calc-row">
+              <label class="field field-inline">
+                <span class="field-label">Alış fiyatı</span>
+                <input type="number" class="buy-input" value="2100000">
+              </label>
+              <span class="calc-res profit"><span class="calc-res-label">Sonuç</span><span class="calc-pl">+256.000</span></span>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <!-- ═════════ 3. Belirsiz eşleşme ═════════ -->
+    <h3>3 · Birden fazla aday</h3>
+    <main class="layout">
+      <aside class="side">
+        <section class="panel side-panel">
+          <header class="panel-head">
+            <span class="eyebrow">Manuel düzeltme</span>
+            <h2>Kart yanlış mı? Düzelt.</h2>
+          </header>
+          <div class="fix-block">
+            <label class="field"><span class="field-label">Oyuncu adı</span>
+              <div class="field-row"><input type="search" placeholder="ör. Zidane"><button class="btn btn-primary">Ara</button></div>
+            </label>
+          </div>
+        </section>
+      </aside>
+      <section class="main-col">
+        <div class="stage">
+          <div class="panel">
+            <p class="pick-note">Birden fazla kart eşleşti — hangisi olduğunu seç.</p>
+            <header class="panel-head compact">
+              <span class="eyebrow">Birden fazla eşleşme</span>
+              <h2>Hangi kart bu?</h2>
+              <p class="muted small">Holographic ve normal versiyonları karşılaştır, doğru olanı seç.</p>
+            </header>
+            <div class="candidates">
+              <button class="cand"><div class="ph">?</div><b>96 · Z. Zidane</b><span>CAM · Ultimate Icon</span></button>
+              <button class="cand"><div class="ph">?</div><b>93 · Z. Zidane</b><span>CAM · Base Icon</span></button>
+              <button class="cand"><div class="ph">?</div><b>98 · Z. Zidane</b><span>CAM · TOTS Icon</span></button>
+              <button class="cand"><div class="ph">?</div><b>95 · Z. Zidane</b><span>CAM · Prime Icon</span></button>
+              <button class="cand"><div class="ph">?</div><b>91 · Z. Zidane</b><span>CAM · Mid Icon</span></button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ═════════ 4. Fiyat yok ═════════ -->
+    <h3>4 · Kart tanındı, fiyat alınamadı</h3>
+    <main class="layout">
+      <aside class="side">
+        <section class="panel side-panel">
+          <header class="panel-head">
+            <span class="eyebrow">Manuel düzeltme</span>
+            <h2>Kart yanlış mı? Düzelt.</h2>
+          </header>
+          <div class="fix-block">
+            <label class="field"><span class="field-label">Kart linki</span>
+              <div class="field-row"><input type="url" placeholder="https://www.fut.gg/players/…"><button class="btn">Ekle</button></div>
+            </label>
+          </div>
+        </section>
+      </aside>
+      <section class="main-col">
+        <div class="stage">
+          <article class="card-view">
+            <div class="card-art"><div class="card-art-glow"></div>
+              <div class="art-fallback"><svg viewBox="0 0 64 80" fill="none"><rect x="4" y="4" width="56" height="72" rx="10" stroke="currentColor" stroke-width="1.5" opacity=".35"/><circle cx="32" cy="30" r="10" stroke="currentColor" stroke-width="1.5" opacity=".45"/></svg></div>
+            </div>
+            <div class="card-body">
+              <header class="idline">
+                <div class="rating-badge"><span class="rating">87</span></div>
+                <div class="id-text">
+                  <h2 class="pname">Bukayo Saka</h2>
+                  <p class="meta"><span class="pos">RW</span><span class="sep">•</span><span class="version">TOTW 12</span></p>
+                </div>
+              </header>
+              <section class="price-box">
+                <div class="price-main">
+                  <span class="label">En düşük BIN</span>
+                  <div class="price-line"><span class="coin" style="opacity:.35"></span><span class="price none">Fiyat yok</span></div>
+                </div>
+                <div class="price-side">
+                  <div class="price-net"><span class="label">%5 vergi sonrası</span><div class="net">—</div></div>
+                  <div class="srcline"><span class="src">FUT.GG</span><span class="dot-sep"></span><span class="age"></span></div>
+                </div>
+              </section>
+              <p class="note bad small">FUT.GG: 429 rate limit. FUTBIN: bot koruması nedeniyle engellendi. Bir kaç dakika sonra tekrar dene.</p>
+              <div class="actions">
+                <button class="btn refresh">Fiyatı yenile</button>
+                <a class="btn ghost open">Kaynağı aç</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <!-- ═════════ 5. Hata durumları ═════════ -->
+    <h3>5 · Hata / boş durumlar</h3>
+    <main class="layout">
+      <aside class="side">
+        <section class="panel side-panel">
+          <header class="panel-head">
+            <span class="eyebrow">Manuel düzeltme</span>
+            <h2>Kart yanlış mı? Düzelt.</h2>
+          </header>
+          <div class="fix-block">
+            <label class="field"><span class="field-label">Oyuncu adı</span>
+              <div class="field-row"><input type="search" placeholder="ör. Zidane"><button class="btn btn-primary">Ara</button></div>
+            </label>
+            <p class="msg err">Görsel okuma modeli hazır değil.</p>
+          </div>
+        </section>
+      </aside>
+      <section class="main-col">
+        <div class="stage">
+          <div class="empty state-no_match">
+            <p class="state-title">Kart bulunamadı</p>
+            <p class="muted state-sub">Katalogda eşleşen kart yok. Sağdan manuel arayabilir ya da FUT.GG linki yapıştırabilirsin.</p>
+            <p class="muted small" style="margin-top:8px">Okunan: Saka · 87 · RW · TOTW</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+  </div>
+</body>
+</html>
