@@ -21,6 +21,7 @@ from ..models.tables import (
     FutwizMap,
     Meta,
     PriceCache,
+    PricePoint,
     Scan,
 )
 
@@ -266,3 +267,45 @@ class Repository:
             row.source_url = source_url
             row.fetched_at = fetched_at
             session.add(row)
+
+    # ---------------------------------------------------------- price series
+    def record_price_point(
+        self, ea_id: int, platform: str, price: int, source: str,
+        recorded_at: datetime,
+    ) -> None:
+        """Append one observation. Never overwrites; this is the chart's data."""
+        with session_scope(self._engine) as session:
+            session.add(
+                PricePoint(
+                    ea_id=ea_id, platform=platform, price=price,
+                    source=source, recorded_at=recorded_at,
+                )
+            )
+
+    def price_history(
+        self, ea_id: int, since: datetime, platform: str | None = None
+    ) -> list[PricePoint]:
+        """Observations for one card, oldest first."""
+        with session_scope(self._engine) as session:
+            statement = select(PricePoint).where(
+                PricePoint.ea_id == ea_id,
+                PricePoint.recorded_at >= since.replace(tzinfo=None),
+            )
+            if platform:
+                statement = statement.where(PricePoint.platform == platform)
+            rows = list(
+                session.exec(statement.order_by(col(PricePoint.recorded_at))).all()
+            )
+        for row in rows:
+            row.recorded_at = _aware(row.recorded_at)
+        return rows
+
+    def price_point_count(self, ea_id: int) -> int:
+        with session_scope(self._engine) as session:
+            return int(
+                session.exec(
+                    select(func.count())
+                    .select_from(PricePoint)
+                    .where(PricePoint.ea_id == ea_id)
+                ).one()
+            )

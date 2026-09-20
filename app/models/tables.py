@@ -107,6 +107,25 @@ class PriceCache(SQLModel, table=True):
     fetched_at: datetime = Field(default_factory=utcnow)
 
 
+class PricePoint(SQLModel, table=True):
+    """One observed price, appended and never overwritten.
+
+    `price_cache` keeps only the latest value; this is the series behind the
+    chart. Points are recorded when a price is actually fetched -- there is no
+    background sampling -- so the series is as dense as your own usage.
+    """
+
+    __tablename__ = "price_point"
+    __table_args__ = (Index("idx_point_card_time", "ea_id", "recorded_at"),)
+
+    id: int | None = Field(default=None, primary_key=True)
+    ea_id: int = Field(index=True)
+    platform: str
+    price: int
+    source: str
+    recorded_at: datetime = Field(default_factory=utcnow)
+
+
 class Meta(SQLModel, table=True):
     """Small key/value store for app state."""
 

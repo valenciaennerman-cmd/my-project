@@ -18,6 +18,10 @@ const el = {
   history: $("#history"),
   historyPanel: $("#history-panel"),
   historyCount: $("#history-count"),
+  chartPanel: $("#chart-panel"),
+  chartTitle: $("#chart-title"),
+  chartWrap: $("#chart-wrap"),
+  chartNote: $("#chart-note"),
   searchInput: $("#search-input"),
   searchBtn: $("#search-btn"),
   linkInput: $("#link-input"),
@@ -326,6 +330,7 @@ function show(scan) {
   }
 
   renderHistory();
+  loadChart();
 }
 
 function renderHistory() {
@@ -406,6 +411,7 @@ function refreshCalcView() {
   if (isNaN(buyPrice) || buyPrice <= 0) {
     el.calcRes.hidden = true;
     localStorage.removeItem(`buy_${eaId}`);
+    drawChart();
     return;
   }
   localStorage.setItem(`buy_${eaId}`, buyPrice);
@@ -413,6 +419,324 @@ function refreshCalcView() {
   el.calcRes.hidden = false;
   el.calcRes.className = "calc-res " + (pl > 0 ? "profit" : (pl < 0 ? "loss" : ""));
   el.calcPl.textContent = (pl > 0 ? "+" : "") + coins(pl);
+  // buy price drives the baseline and the profit band
+  drawChart();
+}
+
+
+/* ---------------------------------------------------------------- chart */
+/* Price history, drawn as inline SVG. The series is only what this app has
+   actually observed -- no background polling, no third-party history mixed in,
+   so every point is a real PC reading taken while you were using the tool. */
+
+const CHART = {
+  range: "24h",
+  series: { bin: true, net: true, buy: true, pl: false },
+  data: null,
+  eaId: null,
+};
+
+const RANGE_LABEL = { "1h": "son 1 saat", "24h": "son 24 saat", "7d": "son 7 gün" };
+
+function buyPriceFor(eaId) {
+  try {
+    const value = parseInt(localStorage.getItem(`buy_${eaId}`), 10);
+    return Number.isFinite(value) && value > 0 ? value : null;
+  } catch {
+    return null; // private mode / blocked storage
+  }
+}
+
+async function loadChart() {
+  if (!el.chartPanel) return;
+  const card = current && current.card;
+  if (!card) {
+    el.chartPanel.hidden = true;
+    return;
+  }
+  CHART.eaId = card.ea_id;
+  el.chartPanel.hidden = false;
+  el.chartTitle.textContent = `${card.rating} ${card.name}`;
+
+  try {
+    CHART.data = await api(`/api/cards/${card.ea_id}/history?range=${CHART.range}`);
+  } catch (err) {
+    CHART.data = null;
+    el.chartWrap.innerHTML = "";
+    el.chartNote.textContent = err.message;
+    el.chartNote.className = "chart-note small is-err";
+    return;
+  }
+  drawChart();
+}
+
+function drawChart() {
+  const data = CHART.data;
+  if (!data) return;
+
+  const buy = buyPriceFor(CHART.eaId);
+  const points = data.points.map((p) => ({
+    t: new Date(p.t).getTime(), bin: p.bin, net: p.net,
+  }));
+
+  el.chartNote.className = "chart-note muted small";
+
+  if (points.length < 2) {
+    el.chartWrap.innerHTML = "";
+    el.chartWrap.appendChild(chartEmpty(points.length, data.total_recorded));
+    el.chartNote.textContent = data.total_recorded
+      ? `Toplam ${data.total_recorded} kayıt var, ${RANGE_LABEL[CHART.range]} içinde ${data.in_range}.`
+      : "Fiyat çektikçe burası dolar — arka planda otomatik örnekleme yapılmıyor.";
+    return;
+  }
+
+  el.chartWrap.innerHTML = "";
+  el.chartWrap.appendChild(
+    CHART.series.pl && buy ? plChart(points, buy) : priceChart(points, buy)
+  );
+
+  const last = points[points.length - 1];
+  const parts = [`${points.length} nokta · ${RANGE_LABEL[CHART.range]}`];
+  if (buy) {
+    const pl = last.net - buy;
+    parts.push(`şu an ${pl >= 0 ? "kâr" : "zarar"}: ${pl >= 0 ? "+" : ""}${coins(pl)}`);
+  } else {
+    parts.push("alış fiyatını yazarsan kâr/zarar da çizilir");
+  }
+  el.chartNote.textContent = parts.join(" · ");
+}
+
+function chartEmpty(inRange, total) {
+  const box = document.createElement("div");
+  box.className = "chart-empty";
+  box.dataset.testid = "chart-empty";
+  const title = document.createElement("p");
+  title.className = "state-title";
+  title.textContent =
+    inRange === 0 ? "Bu aralıkta kayıt yok" : "Grafik için en az 2 nokta gerekli";
+  const sub = document.createElement("p");
+  sub.className = "muted small";
+  sub.textContent = total
+    ? `Toplam ${total} fiyat kaydı var. Başka bir aralık dene ya da "Fiyatı yenile"ye bas.`
+    : 'Her "Fiyatı yenile"de bir nokta eklenir.';
+  box.append(title, sub);
+  return box;
+}
+
+/* ---- geometry ---- */
+const PAD = { top: 16, right: 14, bottom: 24, left: 66 };
+const VIEW = { w: 900, h: 260 };
+
+function niceTicks(min, max, count = 4) {
+  if (min === max) return [min];
+  const step = (max - min) / count;
+  const mag = Math.pow(10, Math.floor(Math.log10(step)));
+  const norm = step / mag;
+  const nice = (norm >= 5 ? 10 : norm >= 2 ? 5 : norm >= 1 ? 2 : 1) * mag;
+  const out = [];
+  for (let v = Math.ceil(min / nice) * nice; v <= max + 1e-9; v += nice) out.push(v);
+  return out.length ? out : [min, max];
+}
+
+function svgEl(name, attrs = {}) {
+  const node = document.createElementNS("http://www.w3.org/2000/svg", name);
+  for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+  return node;
+}
+
+function makeSvg() {
+  const svg = svgEl("svg", {
+    viewBox: `0 0 ${VIEW.w} ${VIEW.h}`,
+    class: "chart-svg",
+    role: "img",
+  });
+  svg.dataset.testid = "chart-svg";
+  return svg;
+}
+
+function scales(points, lo, hi) {
+  const t0 = points[0].t;
+  const span = (points[points.length - 1].t - t0) || 1;
+  const range = (hi - lo) || 1;
+  return {
+    x: (t) => PAD.left + ((t - t0) / span) * (VIEW.w - PAD.left - PAD.right),
+    y: (v) => PAD.top + (1 - (v - lo) / range) * (VIEW.h - PAD.top - PAD.bottom),
+  };
+}
+
+function linePath(points, key, sc) {
+  return points
+    .map((p, i) => `${i ? "L" : "M"}${sc.x(p.t).toFixed(1)} ${sc.y(p[key]).toFixed(1)}`)
+    .join(" ");
+}
+
+function addGrid(svg, ticks, sc, format) {
+  for (const value of ticks) {
+    const y = sc.y(value);
+    svg.appendChild(svgEl("line", {
+      x1: PAD.left, x2: VIEW.w - PAD.right, y1: y, y2: y, class: "grid-line",
+    }));
+    const label = svgEl("text", {
+      x: PAD.left - 10, y: y + 4, class: "axis-label", "text-anchor": "end",
+    });
+    label.textContent = format(value);
+    svg.appendChild(label);
+  }
+}
+
+function addTimeAxis(svg, points, sc) {
+  const first = points[0].t;
+  const last = points[points.length - 1].t;
+  const spansDays = new Date(first).toDateString() !== new Date(last).toDateString();
+
+  const fmt = (ms) => {
+    const d = new Date(ms);
+    if (CHART.range === "7d") {
+      return d.toLocaleDateString("tr-TR", { day: "2-digit", month: "2-digit" });
+    }
+    const time = d.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+    return spansDays
+      ? `${d.toLocaleDateString("tr-TR", { day: "2-digit", month: "2-digit" })} ${time}`
+      : time;
+  };
+
+  const ticks = [
+    [first, "start"],
+    [first + (last - first) / 2, "middle"],
+    [last, "end"],
+  ];
+  for (const [ms, anchor] of ticks) {
+    const label = svgEl("text", {
+      x: anchor === "start" ? PAD.left
+        : anchor === "end" ? VIEW.w - PAD.right
+        : sc.x(ms),
+      y: VIEW.h - 6, class: "axis-label", "text-anchor": anchor,
+    });
+    label.textContent = fmt(ms);
+    svg.appendChild(label);
+  }
+}
+
+function shortCoins(value) {
+  const abs = Math.abs(value);
+  if (abs >= 1e6) return (value / 1e6).toFixed(abs >= 1e7 ? 0 : 1).replace(".", ",") + "M";
+  if (abs >= 1e3) return Math.round(value / 1e3) + "K";
+  return String(Math.round(value));
+}
+
+/* ---- price view: BIN + after-tax lines, buy price as a baseline,
+        and the gap between after-tax and buy shaded -- that gap is the profit */
+function priceChart(points, buy) {
+  const values = [];
+  if (CHART.series.bin) values.push(...points.map((p) => p.bin));
+  if (CHART.series.net) values.push(...points.map((p) => p.net));
+  if (CHART.series.buy && buy) values.push(buy);
+  if (!values.length) values.push(...points.map((p) => p.bin));
+
+  let lo = Math.min(...values);
+  let hi = Math.max(...values);
+  const pad = ((hi - lo) || hi || 1) * 0.12;
+  lo -= pad;
+  hi += pad;
+
+  const sc = scales(points, lo, hi);
+  const svg = makeSvg();
+  addGrid(svg, niceTicks(lo, hi), sc, shortCoins);
+
+  if (CHART.series.buy && CHART.series.net && buy) {
+    const top = linePath(points, "net", sc);
+    const back = points
+      .slice()
+      .reverse()
+      .map((p) => `L${sc.x(p.t).toFixed(1)} ${sc.y(buy).toFixed(1)}`)
+      .join(" ");
+    const profitable = points[points.length - 1].net >= buy;
+    svg.appendChild(svgEl("path", {
+      d: `${top} ${back} Z`,
+      class: `band ${profitable ? "band-profit" : "band-loss"}`,
+    }));
+  }
+
+  if (CHART.series.buy && buy) {
+    svg.appendChild(svgEl("line", {
+      x1: PAD.left, x2: VIEW.w - PAD.right,
+      y1: sc.y(buy), y2: sc.y(buy), class: "line-buy",
+    }));
+  }
+  if (CHART.series.bin) {
+    svg.appendChild(svgEl("path", { d: linePath(points, "bin", sc), class: "line-bin" }));
+  }
+  if (CHART.series.net) {
+    svg.appendChild(svgEl("path", { d: linePath(points, "net", sc), class: "line-net" }));
+  }
+
+  const last = points[points.length - 1];
+  if (CHART.series.bin) {
+    svg.appendChild(svgEl("circle", {
+      cx: sc.x(last.t), cy: sc.y(last.bin), r: 4, class: "dot-bin",
+    }));
+  }
+  addTimeAxis(svg, points, sc);
+  return svg;
+}
+
+/* ---- profit/loss view: its own zero baseline, so the scale stays readable ---- */
+function plChart(points, buy) {
+  const pl = points.map((p) => ({ t: p.t, v: p.net - buy }));
+  let lo = Math.min(0, ...pl.map((p) => p.v));
+  let hi = Math.max(0, ...pl.map((p) => p.v));
+  const pad = ((hi - lo) || Math.abs(hi) || 1) * 0.15;
+  lo -= pad;
+  hi += pad;
+
+  const sc = scales(points, lo, hi);
+  const svg = makeSvg();
+  addGrid(svg, niceTicks(lo, hi), sc, (v) => (v > 0 ? "+" : "") + shortCoins(v));
+
+  const zero = sc.y(0);
+  svg.appendChild(svgEl("line", {
+    x1: PAD.left, x2: VIEW.w - PAD.right, y1: zero, y2: zero, class: "zero-line",
+  }));
+
+  const path = pl
+    .map((p, i) => `${i ? "L" : "M"}${sc.x(p.t).toFixed(1)} ${sc.y(p.v).toFixed(1)}`)
+    .join(" ");
+  const close =
+    `L${sc.x(pl[pl.length - 1].t).toFixed(1)} ${zero} L${sc.x(pl[0].t).toFixed(1)} ${zero} Z`;
+  const profitable = pl[pl.length - 1].v >= 0;
+
+  svg.appendChild(svgEl("path", {
+    d: path + close, class: `band ${profitable ? "band-profit" : "band-loss"}`,
+  }));
+  svg.appendChild(svgEl("path", {
+    d: path, class: `line-pl ${profitable ? "is-profit" : "is-loss"}`,
+  }));
+  svg.appendChild(svgEl("circle", {
+    cx: sc.x(pl[pl.length - 1].t), cy: sc.y(pl[pl.length - 1].v), r: 4,
+    class: `dot-pl ${profitable ? "is-profit" : "is-loss"}`,
+  }));
+  addTimeAxis(svg, points, sc);
+  return svg;
+}
+
+function bindChartControls() {
+  for (const btn of document.querySelectorAll(".range-btn")) {
+    btn.addEventListener("click", () => {
+      CHART.range = btn.dataset.range;
+      for (const other of document.querySelectorAll(".range-btn")) {
+        other.classList.toggle("is-on", other === btn);
+      }
+      loadChart();
+    });
+  }
+  for (const chip of document.querySelectorAll(".chip[data-series]")) {
+    chip.addEventListener("click", () => {
+      const key = chip.dataset.series;
+      CHART.series[key] = !CHART.series[key];
+      chip.classList.toggle("is-on", CHART.series[key]);
+      drawChart();
+    });
+  }
 }
 
 /* ------------------------------------------------------------ actions */
@@ -548,4 +872,5 @@ el.linkBtn.addEventListener("click", addLink);
 el.linkInput.addEventListener("keydown", (e) => { if (e.key === "Enter") addLink(); });
 el.buyInput.addEventListener("input", refreshCalcView);
 
+bindChartControls();
 boot();

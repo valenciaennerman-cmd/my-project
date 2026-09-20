@@ -15,6 +15,7 @@ from .core.db import build_engine
 from .core.logging import setup_logging
 from .core.state import state
 from .routers import catalog as catalog_router
+from .routers import history as history_router
 from .routers import scans as scans_router
 from .routers import system as system_router
 from .services.catalog.futgg import CatalogError
@@ -130,6 +131,7 @@ app = FastAPI(title="FC 27 Fiyat Araci", version="1.0.0", lifespan=lifespan)
 app.include_router(system_router.router)
 app.include_router(scans_router.router)
 app.include_router(catalog_router.router)
+app.include_router(history_router.router)
 
 
 @app.get("/", include_in_schema=False)

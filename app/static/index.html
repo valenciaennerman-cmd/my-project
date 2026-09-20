@@ -256,6 +256,39 @@
     </div>
   </section>
 
+  <!-- ------------------------------ Fiyat grafiği ----------------------- -->
+  <section class="chart-box panel" id="chart-panel" hidden data-testid="chart-panel">
+    <header class="panel-head compact chart-head">
+      <div>
+        <span class="eyebrow">Fiyat geçmişi</span>
+        <h2 id="chart-title">Grafik</h2>
+      </div>
+      <div class="range-group" role="group" aria-label="Zaman aralığı">
+        <button type="button" class="range-btn" data-range="1h" data-testid="range-1h">Son 1 saat</button>
+        <button type="button" class="range-btn is-on" data-range="24h" data-testid="range-24h">Son 24 saat</button>
+        <button type="button" class="range-btn" data-range="7d" data-testid="range-7d">Son 7 gün</button>
+      </div>
+    </header>
+
+    <div class="series-group" role="group" aria-label="Çizgiler">
+      <button type="button" class="chip is-on" data-series="bin" data-testid="series-bin">
+        <i class="swatch s-bin" aria-hidden="true"></i>Lowest BIN
+      </button>
+      <button type="button" class="chip is-on" data-series="net" data-testid="series-net">
+        <i class="swatch s-net" aria-hidden="true"></i>Vergi sonrası
+      </button>
+      <button type="button" class="chip is-on" data-series="buy" data-testid="series-buy">
+        <i class="swatch s-buy" aria-hidden="true"></i>Alış fiyatım
+      </button>
+      <button type="button" class="chip" data-series="pl" data-testid="series-pl">
+        <i class="swatch s-pl" aria-hidden="true"></i>Kâr/zarar
+      </button>
+    </div>
+
+    <div class="chart-wrap" id="chart-wrap" data-testid="chart-wrap"></div>
+    <p class="chart-note muted small" id="chart-note" data-testid="chart-note"></p>
+  </section>
+
   <!-- ------------------------------ Son taramalar ----------------------- -->
   <section class="history-box panel" id="history-panel" hidden data-testid="history-panel">
     <header class="panel-head compact history-head">

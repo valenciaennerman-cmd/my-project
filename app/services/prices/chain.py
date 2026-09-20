@@ -94,6 +94,13 @@ class PriceService:
                 price=quote.price, is_extinct=quote.is_extinct, note=quote.note,
                 source_url=quote.source_url, fetched_at=quote.fetched_at,
             )
+            # Cached reads deliberately do not land here: a point means the
+            # price was actually observed at that moment.
+            if quote.price is not None:
+                self._repo.record_price_point(
+                    ea_id=card.ea_id, platform=quote.platform, price=quote.price,
+                    source=quote.source, recorded_at=quote.fetched_at,
+                )
             return quote, failures
 
         # Everything failed -- a stale number with an honest age beats nothing.

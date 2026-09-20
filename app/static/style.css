@@ -884,3 +884,82 @@ kbd {
 
 /* ============================== UTILITIES ============================= */
 [hidden] { display: none !important; }
+
+/* ---------- Fiyat grafiği ----------------------------------------------- */
+.chart-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+.range-group { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px;
+  background: var(--surface-2); border: 1px solid var(--line); }
+.range-btn {
+  padding: 6px 13px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 600; color: var(--muted);
+  cursor: pointer; white-space: nowrap;
+  transition: background .15s ease, color .15s ease;
+}
+.range-btn:hover { color: var(--text); }
+.range-btn.is-on {
+  background: linear-gradient(180deg, rgba(245,196,81,.22), rgba(245,196,81,.10));
+  color: var(--gold-hot);
+  box-shadow: inset 0 0 0 1px var(--gold-line);
+}
+
+.series-group { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 10px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--surface-2);
+  font-size: 12.5px; font-weight: 600; color: var(--muted);
+  cursor: pointer; transition: border-color .15s ease, color .15s ease, opacity .15s ease;
+  opacity: .55;
+}
+.chip:hover { border-color: var(--line-strong); color: var(--text); }
+.chip.is-on { opacity: 1; color: var(--text); border-color: var(--line-strong); }
+.swatch { width: 10px; height: 10px; border-radius: 3px; flex: 0 0 auto; }
+.swatch.s-bin { background: var(--gold); }
+.swatch.s-net { background: var(--electric); }
+.swatch.s-buy { background: var(--muted); }
+.swatch.s-pl  { background: var(--success); }
+
+.chart-wrap {
+  position: relative;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255,255,255,.02), transparent 60%), var(--surface-2);
+  padding: 6px 2px 2px;
+  min-height: 190px;
+}
+/* Uniform scaling keeps the axis text from being squashed horizontally. */
+.chart-svg { display: block; width: 100%; height: auto; }
+
+.grid-line { stroke: var(--line); stroke-width: 1; }
+.zero-line { stroke: var(--line-strong); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.axis-label {
+  fill: var(--muted-2); font-family: var(--font-num);
+  font-size: 11px; font-variant-numeric: tabular-nums;
+}
+
+.line-bin { fill: none; stroke: var(--gold); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+.line-net { fill: none; stroke: var(--electric); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.line-buy { stroke: var(--muted); stroke-width: 1.6; stroke-dasharray: 6 5; }
+.line-pl  { fill: none; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+.line-pl.is-profit { stroke: var(--success); }
+.line-pl.is-loss   { stroke: var(--bad); }
+
+.band { stroke: none; }
+.band-profit { fill: rgba(111,225,168,.14); }
+.band-loss   { fill: rgba(255,107,107,.14); }
+
+.dot-bin { fill: var(--gold-hot); stroke: var(--bg); stroke-width: 2; }
+.dot-pl.is-profit { fill: var(--success); stroke: var(--bg); stroke-width: 2; }
+.dot-pl.is-loss   { fill: var(--bad); stroke: var(--bg); stroke-width: 2; }
+
+.chart-empty {
+  display: grid; place-content: center; gap: 6px;
+  text-align: center; min-height: 190px; padding: 20px;
+}
+.chart-note { margin-top: 10px; }
+.chart-note.is-err { color: var(--bad); }
+
+@media (max-width: 720px) {
+  .chart-head { align-items: flex-start; }
+}
