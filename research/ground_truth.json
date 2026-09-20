@@ -1,0 +1,19 @@
+{
+  "_note": "Hand-labelled from the 16 sample screenshots. card_type is the visual family, not FUT.GG's exact rarityName (FUT.GG is the authority for that).",
+  "1.png":  {"name": "Adeyemi",        "rating": 82, "position": "RM",  "card_type": "totw",       "style": "black card, gold text and trim"},
+  "2.png":  {"name": "Vicky López",    "rating": 84, "position": "RW",  "card_type": "gold_rare",  "style": "solid gold, dark text"},
+  "3.png":  {"name": "Kika Nazareth",  "rating": 83, "position": "CM",  "card_type": "gold_rare",  "style": "solid gold, dark text"},
+  "4.png":  {"name": "Kim Chang Hun",  "rating": 47, "position": "ST",  "card_type": "bronze",     "style": "bronze/copper"},
+  "5.png":  {"name": "Ko Pil Gwan",    "rating": 47, "position": "CM",  "card_type": "bronze",     "style": "bronze/copper"},
+  "6.png":  {"name": "Marina Martí",   "rating": 72, "position": "RW",  "card_type": "silver",     "style": "silver/grey"},
+  "7.png":  {"name": "Dinkçi",         "rating": 73, "position": "CAM", "card_type": "gold",       "style": "gold non-rare, lighter"},
+  "8.png":  {"name": "Lamine Yamal",   "rating": 91, "position": "RW",  "card_type": "special",    "style": "dark navy with gold accents, premium promo"},
+  "9.png":  {"name": "Safonov",        "rating": 84, "position": "GK",  "card_type": "special",    "style": "dark purple/navy with gold, promo"},
+  "10.png": {"name": "Safonov",        "rating": 84, "position": "GK",  "card_type": "special",    "style": "dark purple/navy with gold, promo (same card as 9.png, larger crop)"},
+  "11.png": {"name": "Maicon",         "rating": 88, "position": "RB",  "card_type": "icon",       "style": "white marble with gold, icon"},
+  "12.png": {"name": "Zidane",         "rating": 94, "position": "CAM", "card_type": "icon",       "style": "white marble with gold, icon"},
+  "13.png": {"name": "Emenike",        "rating": 84, "position": "ST",  "card_type": "special",    "style": "white/silver shattered glass promo"},
+  "14.png": {"name": "Valencia",       "rating": 85, "position": "RM",  "card_type": "special",    "style": "white/silver shattered glass promo"},
+  "15.png": {"name": "Gomez",          "rating": 87, "position": "ST",  "card_type": "special",    "style": "purple/magenta promo with light streaks"},
+  "16.png": {"name": "Ramires",        "rating": 86, "position": "CDM", "card_type": "special",    "style": "blue/pink holographic-looking promo"}
+}

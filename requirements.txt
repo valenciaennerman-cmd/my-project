@@ -1,0 +1,27 @@
+# Pinned to what this project was built and tested against (Python 3.11+).
+
+# --- web app ---
+fastapi==0.141.1
+uvicorn[standard]==0.53.0
+pydantic==2.13.5
+pydantic-settings==2.15.0
+python-dotenv==1.2.3
+
+# --- storage ---
+sqlmodel==0.0.42
+SQLAlchemy==2.0.54
+
+# --- card reading ---
+anthropic==1.7.0
+pillow==12.3.0
+
+# --- catalog + prices ---
+httpx==0.28.1
+brotli==1.2.0
+playwright==1.63.0
+rapidfuzz==3.14.6
+
+# --- tests ---
+pytest==9.1.1
+pytest-asyncio==1.4.0
+respx==0.23.1

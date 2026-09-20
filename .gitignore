@@ -1,0 +1,25 @@
+# secrets
+.env
+
+# runtime data (database, browser profile, clipboard inbox)
+data/
+
+# python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# research scratch (kept: FINDINGS.md and the scripts)
+research/body_*.html
+research/futgg_*.html
+research/futgg_*.js
+research/futgg_*.json
+research/futdb_*.html
+research/futdb_*.json
+research/ocr_*.json
+research/.pwprofile/
+
+# IDE
+.idea/
+.vscode/

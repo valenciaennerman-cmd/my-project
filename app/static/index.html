@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FC 27 Fiyat Aracı</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Sora:wght@600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/static/style.css?v=3" />
+</head>
+<body>
+  <!-- ------------------------------ Top bar ----------------------------- -->
+  <header class="topbar" role="banner">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="brand-text">
+        <h1>FC&nbsp;27 <em>Fiyat Aracı</em></h1>
+        <p class="brand-sub muted small" id="catalog-info" data-testid="catalog-info">katalog yükleniyor…</p>
+      </div>
+    </div>
+
+    <div class="topbar-actions" role="group" aria-label="Bağlantı ve yakalama">
+      <div class="live" data-testid="live-status" aria-live="polite">
+        <span class="dot" id="live-dot" aria-hidden="true"></span>
+        <span class="live-label">Canlı</span>
+      </div>
+
+      <label class="switch" for="watch-toggle" data-testid="watch-toggle-label">
+        <input type="checkbox" id="watch-toggle" role="switch" aria-label="Klasör izleme" />
+        <span class="switch-track"><span class="switch-knob"></span></span>
+        <span class="switch-text">
+          <span class="switch-title" id="watch-label">Klasör izleme</span>
+          <span class="switch-sub muted small" id="watch-dir">—</span>
+        </span>
+      </label>
+
+      <label class="switch" for="clip-toggle" data-testid="clip-toggle-label">
+        <input type="checkbox" id="clip-toggle" role="switch" aria-label="Pano izleme" />
+        <span class="switch-track"><span class="switch-knob"></span></span>
+        <span class="switch-text">
+          <span class="switch-title" id="clip-label">Pano</span>
+          <span class="switch-sub muted small">Win + Shift + S</span>
+        </span>
+      </label>
+    </div>
+  </header>
+
+  <!-- ------------------------------ Layout ------------------------------ -->
+  <main class="layout" id="main">
+    <!-- Sol: manuel düzeltme -->
+    <aside class="side" aria-label="Manuel düzeltme">
+      <section class="panel side-panel" data-testid="manual-panel">
+        <header class="panel-head">
+          <span class="eyebrow">Manuel düzeltme</span>
+          <h2>Kart yanlış mı? Düzelt.</h2>
+          <p class="muted small">
+            Otomatik okuma her zaman yüzde yüz isabetli olmaz. Adıyla ara ya da
+            <b>FUT.GG</b> linki yapıştır — bu görsel bir daha sorulmaz.
+          </p>
+        </header>
+
+        <div class="fix-block">
+          <label class="field">
+            <span class="field-label">Oyuncu adı</span>
+            <div class="field-row">
+              <input
+                type="search"
+                id="search-input"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="ör. Zidane"
+                data-testid="manual-search-input"
+              />
+              <button class="btn btn-primary" id="search-btn" type="button" data-testid="manual-search-btn">Ara</button>
+            </div>
+          </label>
+
+          <label class="field">
+            <span class="field-label">Kart linki</span>
+            <div class="field-row">
+              <input
+                type="url"
+                id="link-input"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="https://www.fut.gg/players/…"
+                data-testid="link-input"
+              />
+              <button class="btn" id="link-btn" type="button" data-testid="link-btn">Ekle</button>
+            </div>
+          </label>
+
+          <p class="msg" id="fix-msg" data-testid="fix-msg"></p>
+
+          <div class="side-hint">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 8v5m0 3.5v.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4"/>
+            </svg>
+            <p class="muted small">
+              FUTBIN bot koruması yüzünden bazen okunmaz — bu durumda
+              <b>FUT.GG</b> linki kullan.
+            </p>
+          </div>
+        </div>
+
+        <div id="search-results" class="results-scroll" data-testid="search-results"></div>
+      </section>
+    </aside>
+
+    <!-- Sağ: dev kart + fiyat -->
+    <section class="main-col" aria-label="Sonuç">
+      <div id="stage" class="stage" data-testid="stage">
+        <!-- İlk açılış / boş durum -->
+        <div id="empty" class="empty state-empty" data-testid="empty-state">
+          <div class="pulse-ring" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <p class="state-title">Ekran görüntüsü bekleniyor</p>
+          <p class="muted state-sub">
+            Oyun sırasında <kbd>Win</kbd><span>+</span><kbd>Shift</kbd><span>+</span><kbd>S</kbd> ile kartı
+            kopyala ya da izlenen klasöre bir görsel bırak. Kart otomatik tanınır.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+
+  <!-- ------------------------------ Card template ----------------------- -->
+  <template id="card-tpl">
+    <article class="card-view" data-testid="card-view">
+      <!-- Sol: büyük kart görseli -->
+      <div class="card-art">
+        <div class="card-art-glow" aria-hidden="true"></div>
+        <img class="art" alt="" hidden />
+        <div class="art-fallback" aria-hidden="true">
+          <svg viewBox="0 0 64 80" fill="none">
+            <rect x="4" y="4" width="56" height="72" rx="10" stroke="currentColor" stroke-width="1.5" opacity=".35"/>
+            <circle cx="32" cy="30" r="10" stroke="currentColor" stroke-width="1.5" opacity=".45"/>
+            <path d="M14 66c3-10 12-14 18-14s15 4 18 14" stroke="currentColor" stroke-width="1.5" opacity=".45" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Sağ: kimlik + fiyat -->
+      <div class="card-body">
+        <header class="idline">
+          <div class="rating-badge">
+            <span class="rating" data-testid="card-rating">?</span>
+          </div>
+          <div class="id-text">
+            <h2 class="pname" data-testid="card-name">—</h2>
+            <p class="meta">
+              <span class="pos" data-testid="card-position">?</span>
+              <span class="sep" aria-hidden="true">•</span>
+              <span class="version" data-testid="card-version">?</span>
+            </p>
+          </div>
+        </header>
+
+        <section class="price-box" data-testid="price-box">
+          <div class="price-main">
+            <span class="label">En düşük BIN</span>
+            <div class="price-line">
+              <svg class="coin" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+                <defs>
+                  <linearGradient id="coinRim" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#fbe08a"/>
+                    <stop offset=".45" stop-color="#e8b23c"/>
+                    <stop offset="1" stop-color="#8a5f16"/>
+                  </linearGradient>
+                  <radialGradient id="coinFace" cx="34%" cy="26%" r="78%">
+                    <stop offset="0" stop-color="#2a2318"/>
+                    <stop offset="1" stop-color="#0b0906"/>
+                  </radialGradient>
+                  <linearGradient id="coinMark" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#ffe9a8"/>
+                    <stop offset="1" stop-color="#d79f2c"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="32" cy="32" r="31" fill="url(#coinRim)"/>
+                <circle cx="32" cy="32" r="26" fill="#8a5f16" opacity=".55"/>
+                <circle cx="32" cy="32" r="24" fill="url(#coinFace)"/>
+                <!-- Upright, centred U -->
+                <path d="M22 20v11a10 10 0 0 0 20 0V20"
+                      fill="none" stroke="url(#coinMark)" stroke-width="6"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="price" data-testid="price-value">—</span>
+            </div>
+          </div>
+          <div class="price-side">
+            <div class="price-net">
+              <span class="label">%5 vergi sonrası eline geçen</span>
+              <div class="net" data-testid="net-value">—</div>
+            </div>
+            <div class="srcline">
+              <span class="src" data-testid="price-source">—</span>
+              <span class="dot-sep" aria-hidden="true"></span>
+              <span class="age" data-testid="price-age"></span>
+            </div>
+          </div>
+        </section>
+
+        <p class="note small" data-testid="card-note"></p>
+
+        <div class="actions">
+          <button class="btn refresh" type="button" data-testid="refresh-btn">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 12a8 8 0 0 1 13.7-5.6M20 12a8 8 0 0 1-13.7 5.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M17 3v4h-4M7 21v-4h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Fiyatı yenile
+          </button>
+          <a class="btn ghost open" target="_blank" rel="noopener" data-testid="open-source">
+            Kaynağı aç
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M13 5h6v6M19 5l-8 8M10 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <!-- Kâr paneli: kart altında görünür, sabit DOM -->
+  <section class="calc-box panel" id="calc-panel" hidden data-testid="calc-panel">
+    <header class="panel-head compact">
+      <span class="eyebrow">Alış Fiyatı &amp; Kâr</span>
+      <h2>Kâr/Zarar hesabı</h2>
+    </header>
+    <div class="calc-row">
+      <label class="field field-inline">
+        <span class="field-label">Alış fiyatı</span>
+        <input
+          type="number"
+          class="buy-input"
+          id="buy-input"
+          placeholder="0"
+          min="0"
+          inputmode="numeric"
+          data-testid="buy-input"
+        />
+      </label>
+      <span class="calc-res" id="calc-res" hidden data-testid="calc-res">
+        <span class="calc-res-label">Sonuç</span>
+        <span class="calc-pl" id="calc-pl" data-testid="calc-pl">—</span>
+      </span>
+    </div>
+  </section>
+
+  <!-- ------------------------------ Son taramalar ----------------------- -->
+  <section class="history-box panel" id="history-panel" hidden data-testid="history-panel">
+    <header class="panel-head compact history-head">
+      <div>
+        <span class="eyebrow">Geçmiş</span>
+        <h2>Son taramalar</h2>
+      </div>
+      <span class="history-count" id="history-count" data-testid="history-count"></span>
+    </header>
+    <ul id="history" class="history" data-testid="history-list"></ul>
+  </section>
+
+  <script src="/static/app.js?v=3"></script>
+</body>
+</html>
