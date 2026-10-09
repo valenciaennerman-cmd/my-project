@@ -57,3 +57,8 @@ def session_scope(engine: Engine) -> Iterator[Session]:
         raise
     finally:
         session.close()
+
+def get_session() -> Iterator[Session]:
+    from .state import state
+    with Session(state.engine, expire_on_commit=False) as session:
+        yield session

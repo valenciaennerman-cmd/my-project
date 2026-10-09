@@ -10,7 +10,7 @@
     href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Sora:wght@600;700;800&display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="/static/style.css?v=3" />
+  <link rel="stylesheet" href="/static/style.css?v=4" />
 </head>
 <body>
   <!-- ------------------------------ Top bar ----------------------------- -->
@@ -23,6 +23,14 @@
         <h1>FC&nbsp;27 <em>Fiyat Aracı</em></h1>
         <p class="brand-sub muted small" id="catalog-info" data-testid="catalog-info">katalog yükleniyor…</p>
       </div>
+    </div>
+
+    <div class="tabs" style="display:flex; gap: 20px; align-items:center; margin-left: 30px;">
+      <a href="/" class="btn tab-btn active" style="text-decoration:none;">Fiyat Aracı</a>
+      <a href="/squad" class="btn tab-btn " style="text-decoration:none;">Kadro Oluşturucu</a>
+      <a href="/tcp" class="btn tab-btn " style="text-decoration:none;">Trade</a>
+      <a href="/favorites" class="btn tab-btn " style="text-decoration:none;">Favoriler</a>
+      <a href="/calculator" class="btn tab-btn " style="text-decoration:none;">Hesaplayıcı</a>
     </div>
 
     <div class="topbar-actions" role="group" aria-label="Bağlantı ve yakalama">
@@ -54,10 +62,10 @@
   <!-- ------------------------------ Layout ------------------------------ -->
   <main class="layout" id="main">
     <!-- Sol: manuel düzeltme -->
-    <aside class="side" aria-label="Manuel düzeltme">
+    <aside class="side" aria-label="Oyuncu Arama">
       <section class="panel side-panel" data-testid="manual-panel">
         <header class="panel-head">
-          <span class="eyebrow">Manuel düzeltme</span>
+          <span class="eyebrow">Oyuncu Arama</span>
           <h2>Kart yanlış mı? Düzelt.</h2>
           <p class="muted small">
             Otomatik okuma her zaman yüzde yüz isabetli olmaz. Adıyla ara ya da
@@ -112,7 +120,144 @@
 
         <div id="search-results" class="results-scroll" data-testid="search-results"></div>
       </section>
-    </aside>
+
+
+
+      <!-- Yeni Hesaplayici Paneli -->
+      <section class="panel side-panel" style="margin-top: 20px;">
+        <header class="panel-head" style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+              <span class="eyebrow">Trade Hesaplayıcı</span>
+              <h2>Kâr / Zarar (Toplu)</h2>
+          </div>
+          <button onclick="toggleAvgCalc()" style="background:var(--surface-2); border:1px solid var(--line); color:var(--text-main); padding:4px 8px; border-radius:4px; font-size:12px; cursor:pointer;">Ortalama Hesapla</button>
+        </header>
+
+        <div id="avgCalcArea" style="display:none; padding:10px; background:var(--surface-1); border:1px dashed var(--gold); border-radius:6px; margin-bottom:15px;">
+            <span style="font-size:12px; color:var(--muted); display:block; margin-bottom:5px;">Aldığın fiyatları araya boşluk veya virgül koyarak yaz (Örn: 1100 1200 1100)</span>
+            <textarea id="bulkPrices" rows="3" style="width:100%; padding:8px; border-radius:4px; border:1px solid var(--line); background:var(--surface-2); color:var(--text-main); font-family:monospace;" oninput="calcAverage()"></textarea>
+            <div style="font-size:13px; margin-top:5px; color:var(--gold);" id="avgCalcResult">Bekleniyor...</div>
+        </div>
+
+        <div class="fix-block">
+          <div style="display:flex; gap:10px;">
+              <label class="field" style="flex:2;">
+                <span class="field-label">Ort. Alış (Coins)</span>
+                <input type="number" id="sideBuyPrice" placeholder="Örn: 1100" oninput="calcSide()" style="width:100%; padding:10px; border-radius:6px; border:1px solid var(--line); background:var(--surface-2); color:var(--text-main);">
+              </label>
+              <label class="field" style="flex:1;">
+                <span class="field-label">Adet</span>
+                <input type="number" id="sideQty" value="1" min="1" oninput="calcSide()" style="width:100%; padding:10px; border-radius:6px; border:1px solid var(--line); background:var(--surface-2); color:var(--text-main);">
+              </label>
+          </div>
+          <label class="field" style="margin-top:15px;">
+            <span class="field-label">Satış Fiyatı (Coins)</span>
+            <input type="number" id="sideSellPrice" placeholder="Örn: 2500" oninput="calcSide()" style="width:100%; padding:10px; border-radius:6px; border:1px solid var(--line); background:var(--surface-2); color:var(--text-main);">
+          </label>
+
+          <div style="margin-top:20px; padding:15px; background:var(--surface-2); border-radius:8px; border-left:3px solid var(--gold);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px;">
+              <span style="color:var(--muted);">Satış Fiyatı:</span>
+              <span id="sideResSell" style="color:var(--text-main);">0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px;">
+              <span style="color:var(--muted);">EA Vergisi (5%):</span>
+              <span id="sideResTax" style="color:#f44336;">0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px;">
+              <span style="color:var(--muted);">Ele Geçen:</span>
+              <span id="sideResNet" style="color:var(--text-main);">0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:12px; padding-top:12px; border-top:1px solid var(--line); font-weight:bold;">
+              <span style="color:var(--muted);">Kart Başı Kar:</span>
+              <span id="sideResProfit" style="color:var(--text-main);">0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:8px; font-weight:bold;">
+              <span style="color:var(--muted);">Yüzdelik Kar:</span>
+              <span id="sideResPercent" style="color:var(--text-main);">%0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:12px; padding-top:12px; border-top:1px dashed var(--line); font-size:16px; font-weight:900;">
+              <span style="color:var(--gold);">TOPLAM NET KAR:</span>
+              <span id="sideResTotalProfit" style="color:var(--text-main);">0</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <script>
+        function toggleAvgCalc() {
+            const el = document.getElementById('avgCalcArea');
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function calcAverage() {
+            const text = document.getElementById('bulkPrices').value;
+            // Split by space, comma, newline
+            const rawPrices = text.split(/[\s,]+/).filter(x => x.trim() !== '');
+            const prices = rawPrices.map(x => parseFloat(x)).filter(x => !isNaN(x) && x > 0);
+
+            if (prices.length > 0) {
+                const total = prices.reduce((a, b) => a + b, 0);
+                const avg = total / prices.length;
+
+                document.getElementById('avgCalcResult').textContent = prices.length + " adet kart. Ort: " + Math.round(avg);
+
+                // auto fill
+                document.getElementById('sideBuyPrice').value = Math.round(avg);
+                document.getElementById('sideQty').value = prices.length;
+                calcSide();
+            } else {
+                document.getElementById('avgCalcResult').textContent = "Bekleniyor...";
+            }
+        }
+
+        function formatSideNumber(num) {
+            return num.toLocaleString('tr-TR');
+        }
+        function calcSide() {
+            const buyPrice = parseFloat(document.getElementById('sideBuyPrice').value) || 0;
+            const sellPrice = parseFloat(document.getElementById('sideSellPrice').value) || 0;
+            const qty = parseFloat(document.getElementById('sideQty').value) || 1;
+
+            const tax = sellPrice * 0.05;
+            const netSell = sellPrice - tax;
+            const profitPerCard = netSell - buyPrice;
+            const totalProfit = profitPerCard * qty;
+
+            let percent = 0;
+            if (buyPrice > 0) {
+                percent = (profitPerCard / buyPrice) * 100;
+            }
+
+            document.getElementById('sideResSell').textContent = formatSideNumber(sellPrice);
+            document.getElementById('sideResTax').textContent = "-" + formatSideNumber(tax);
+            document.getElementById('sideResNet').textContent = formatSideNumber(netSell);
+
+            const profitEl = document.getElementById('sideResProfit');
+            const percentEl = document.getElementById('sideResPercent');
+            const totalProfitEl = document.getElementById('sideResTotalProfit');
+
+            profitEl.textContent = formatSideNumber(profitPerCard);
+            percentEl.textContent = "%" + percent.toFixed(2);
+            totalProfitEl.textContent = formatSideNumber(totalProfit);
+
+            if (profitPerCard > 0) {
+                profitEl.style.color = '#4CAF50';
+                percentEl.style.color = '#4CAF50';
+                totalProfitEl.style.color = '#4CAF50';
+            } else if (profitPerCard < 0) {
+                profitEl.style.color = '#f44336';
+                percentEl.style.color = '#f44336';
+                totalProfitEl.style.color = '#f44336';
+            } else {
+                profitEl.style.color = 'var(--text-main)';
+                percentEl.style.color = 'var(--text-main)';
+                totalProfitEl.style.color = 'var(--text-main)';
+            }
+        }
+      </script>
+</aside>
+
 
     <!-- Sağ: dev kart + fiyat -->
     <section class="main-col" aria-label="Sonuç">
@@ -130,7 +275,7 @@
         </div>
       </div>
     </section>
-  </main>
+    </main>
 
 
   <!-- ------------------------------ Card template ----------------------- -->
@@ -161,6 +306,10 @@
               <span class="pos" data-testid="card-position">?</span>
               <span class="sep" aria-hidden="true">•</span>
               <span class="version" data-testid="card-version">?</span>
+                <span class="sep" aria-hidden="true">•</span>
+                <span class="alt-pos" data-testid="card-alt-pos" style="color:var(--gold); font-size:18px; font-weight:bold; margin-left:10px; background:rgba(255,215,0,0.1); padding:2px 8px; border-radius:4px;">?</span>
+                <span class="sep" aria-hidden="true">•</span>
+                <span class="smwf" data-testid="card-smwf" style="color:var(--gold); font-size:12px;">? SM / ? WF</span>
             </p>
           </div>
         </header>
@@ -219,7 +368,14 @@
             </svg>
             Fiyatı yenile
           </button>
-          <a class="btn ghost open" target="_blank" rel="noopener" data-testid="open-source">
+          <button class="btn ghost" type="button" id="copy-bin-btn">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"></path>
+          </svg>
+          Kopyala
+        </button>
+        <a class="btn ghost open" target="_blank" rel="noopener" data-testid="open-source">
             Kaynağı aç
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M13 5h6v6M19 5l-8 8M10 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
@@ -231,76 +387,63 @@
   </template>
 
   <!-- Kâr paneli: kart altında görünür, sabit DOM -->
-  <section class="calc-box panel" id="calc-panel" hidden data-testid="calc-panel">
-    <header class="panel-head compact">
-      <span class="eyebrow">Alış Fiyatı &amp; Kâr</span>
-      <h2>Kâr/Zarar hesabı</h2>
-    </header>
-    <div class="calc-row">
-      <label class="field field-inline">
-        <span class="field-label">Alış fiyatı</span>
-        <input
-          type="number"
-          class="buy-input"
-          id="buy-input"
-          placeholder="0"
-          min="0"
-          inputmode="numeric"
-          data-testid="buy-input"
-        />
-      </label>
-      <span class="calc-res" id="calc-res" hidden data-testid="calc-res">
-        <span class="calc-res-label">Sonuç</span>
-        <span class="calc-pl" id="calc-pl" data-testid="calc-pl">—</span>
-      </span>
-    </div>
-  </section>
+    <section class="calc-box panel" id="calc-panel" hidden data-testid="calc-panel">
+      <header class="panel-head compact">
+        <span class="eyebrow">Hesaplamalar</span>
+        <h2>Kâr/Zarar Hesaplayıcı</h2>
+      </header>
 
-  <!-- ------------------------------ Fiyat grafiği ----------------------- -->
-  <section class="chart-box panel" id="chart-panel" hidden data-testid="chart-panel">
-    <header class="panel-head compact chart-head">
-      <div>
-        <span class="eyebrow">Fiyat geçmişi</span>
-        <h2 id="chart-title">Grafik</h2>
+      <!-- Kart Bağlantılı Kâr/Zarar -->
+      <div style="background:var(--surface-2); padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--line);">
+          <h3 style="font-size:14px; color:var(--gold); margin-bottom:10px; text-transform:uppercase;">Seçili Kartın Kâr/Zarar Durumu</h3>
+          <div class="calc-row" style="flex-wrap: wrap; align-items:center;">
+            <label class="field field-inline">
+              <span class="field-label">Kaça Aldın?</span>
+              <input type="number" class="buy-input" id="buy-input" placeholder="0" min="0" />
+            </label>
+            <span class="calc-res" id="calc-res" hidden>
+              <span class="calc-res-label">Piyasa Fiyatına Satarsan:</span>
+              <span class="calc-pl" id="calc-pl">—</span>
+            </span>
+          </div>
       </div>
-      <div class="range-group" role="group" aria-label="Zaman aralığı">
-        <button type="button" class="range-btn" data-range="1h" data-testid="range-1h">Son 1 saat</button>
-        <button type="button" class="range-btn is-on" data-range="24h" data-testid="range-24h">Son 24 saat</button>
-        <button type="button" class="range-btn" data-range="7d" data-testid="range-7d">Son 7 gün</button>
+
+      <!-- Bağımsız Kâr/Zarar -->
+      <div style="background:var(--surface-2); padding:15px; border-radius:8px; border:1px solid var(--line);">
+          <h3 style="font-size:14px; color:var(--text-main); margin-bottom:10px; text-transform:uppercase;">Bağımsız Hesaplayıcı</h3>
+          <div class="calc-row" style="flex-wrap: wrap; align-items:center;">
+            <label class="field field-inline">
+              <span class="field-label">Alış Fiyatı</span>
+              <input type="number" class="buy-input" id="indep-buy" placeholder="0" min="0" />
+            </label>
+            <label class="field field-inline">
+              <span class="field-label">Satış Fiyatı</span>
+              <input type="number" class="buy-input" id="indep-sell" placeholder="0" min="0" />
+            </label>
+            <span class="calc-res">
+              <span class="calc-res-label">Net Kâr/Zarar</span>
+              <span class="calc-pl" id="indep-net">—</span>
+            </span>
+            <span class="calc-res">
+              <span class="calc-res-label">Zararsız Min Satış</span>
+              <span class="calc-pl" id="indep-min">—</span>
+            </span>
+          </div>
       </div>
-    </header>
 
-    <div class="series-group" role="group" aria-label="Çizgiler">
-      <button type="button" class="chip is-on" data-series="bin" data-testid="series-bin">
-        <i class="swatch s-bin" aria-hidden="true"></i>Lowest BIN
-      </button>
-      <button type="button" class="chip is-on" data-series="net" data-testid="series-net">
-        <i class="swatch s-net" aria-hidden="true"></i>Vergi sonrası
-      </button>
-      <button type="button" class="chip is-on" data-series="buy" data-testid="series-buy">
-        <i class="swatch s-buy" aria-hidden="true"></i>Alış fiyatım
-      </button>
-      <button type="button" class="chip" data-series="pl" data-testid="series-pl">
-        <i class="swatch s-pl" aria-hidden="true"></i>Kâr/zarar
-      </button>
-    </div>
-
-    <div class="chart-wrap" id="chart-wrap" data-testid="chart-wrap"></div>
-    <p class="chart-note muted small" id="chart-note" data-testid="chart-note"></p>
-  </section>
-
-  <!-- ------------------------------ Son taramalar ----------------------- -->
-  <section class="history-box panel" id="history-panel" hidden data-testid="history-panel">
-    <header class="panel-head compact history-head">
-      <div>
-        <span class="eyebrow">Geçmiş</span>
-        <h2>Son taramalar</h2>
+      <!-- Telegram Alarm -->
+      <div style="margin-top:15px; padding-top:15px; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:13px; color:var(--muted);">Fiyat düştüğünde Telegram'dan bildirim al:</span>
+        <label class="field field-inline">
+          <span class="field-label">Alarm Fiyatı</span>
+          <input type="number" class="buy-input" id="alert-input" placeholder="0" min="0" />
+        </label>
       </div>
-      <span class="history-count" id="history-count" data-testid="history-count"></span>
-    </header>
-    <ul id="history" class="history" data-testid="history-list"></ul>
-  </section>
 
-  <script src="/static/app.js?v=3"></script>
+    </section>
+
+
+
+  <script src="/static/app.js?v=1790343800"></script>
 </body>
 </html>

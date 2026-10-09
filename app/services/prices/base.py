@@ -33,7 +33,7 @@ class PriceProvider(Protocol):
     platform: Platform
 
     async def fetch(self, card: CatalogCard) -> PriceQuote:
-        """Return the lowest BIN for this exact card.
+        """Return the PC market price for this exact card.
 
         Raises PriceUnavailable when the price cannot be read.
         """

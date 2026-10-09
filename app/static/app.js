@@ -1,3 +1,36 @@
+
+window.favoriteIds = new Set();
+async function fetchFavoritesList() {
+    try {
+        const res = await fetch('/api/favorites');
+        const data = await res.json();
+        window.favoriteIds = new Set(data.favorites.map(f => f.ea_id));
+    } catch(e) {}
+}
+fetchFavoritesList();
+
+window.toggleFavMain = async function(ea_id, name, rating) {
+    try {
+        const res = await fetch('/api/favorites/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ea_id: ea_id, name: name, rating: rating })
+        });
+        const data = await res.json();
+        const btn = document.getElementById(`favBtn-${ea_id}`);
+
+        if (data.status === 'added') {
+            if (window.favoriteIds) window.favoriteIds.add(ea_id);
+            if (btn) { btn.innerHTML = "★"; btn.style.color = "gold"; }
+        } else {
+            if (window.favoriteIds) window.favoriteIds.delete(ea_id);
+            if (btn) { btn.innerHTML = "☆"; btn.style.color = "gray"; }
+        }
+    } catch(e) {
+        console.error('Hata oluştu:', e);
+    }
+};
+
 /* FC 27 price tool — single-page client.
    Live updates arrive over SSE; everything else is a plain fetch.
    NOTE: API surface unchanged from the original; only presentation touched. */
@@ -129,7 +162,13 @@ function renderCard(scan) {
   }
 
   root.querySelector(".rating").textContent = card?.rating ?? "?";
-  root.querySelector(".pname").textContent = card?.name ?? "Bilinmeyen";
+
+  const pnameEl = root.querySelector(".pname");
+  const isFav = window.favoriteIds && window.favoriteIds.has(card?.ea_id);
+  const starChar = isFav ? "★" : "☆";
+  const starColor = isFav ? "gold" : "gray";
+  pnameEl.innerHTML = (card?.name ?? "Bilinmeyen") + (card ? ` <button id="favBtn-${card.ea_id}" onclick="toggleFavMain(${card.ea_id}, '${card.name.replace(/'/g, "&#39;")}', ${card.rating})" style="background:transparent; border:none; cursor:pointer; font-size:24px; vertical-align:middle; margin-left:10px; color:${starColor};" title="Favorilere Ekle/Çıkar">${starChar}</button>` : "");
+
   root.querySelector(".pos").textContent =
     [card?.position, ...(card?.alt_positions || [])].filter(Boolean).join(" / ") || "?";
   root.querySelector(".version").textContent = card?.version ?? "?";
@@ -843,9 +882,10 @@ async function boot() {
     el.catalog.textContent = status.catalog.players
       ? `katalog · ${fmt.format(status.catalog.players)} oyuncu`
       : `katalog · ${status.catalog.status}`;
-    if (!status.vision?.ready) {
-      setMsg(status.vision?.error || "Görsel okuma modeli hazır değil.", "err");
-    }
+    // Kullanici gorsel okuma uyarilarini gormek istemedigi icin devre disi birakildi.
+    // if (!status.vision?.ready) {
+    //  setMsg(status.vision?.error || "Görsel okuma modeli hazır değil.", "err");
+    // }
   } catch (err) {
     setMsg(err.message, "err");
   }

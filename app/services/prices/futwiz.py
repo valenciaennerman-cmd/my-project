@@ -113,10 +113,7 @@ class FutwizProvider:
 
     # -- public ------------------------------------------------------------
     async def fetch(self, card: CatalogCard) -> PriceQuote:
-        futwiz_id, slug = await self._resolve_id(card)
-        url = f"{BASE}/en/fc{GAME}/player/{slug}/{futwiz_id}"
-
-        page = await self._open(url)
+        page, url = await self._open_card(card)
         try:
             await self._wait_for_prices(page)
             blocks = await page.evaluate(_PRICE_JS)
@@ -164,11 +161,13 @@ class FutwizProvider:
         try:
             await page.wait_for_function(
                 "() => [...document.querySelectorAll('*')].some(e => "
-                "!e.children.length && /^\\d{1,3}([,.]\\d{3})+$/.test(e.textContent.trim()))",
-                timeout=12_000,
+                "!e.children.length && ("
+                "/^\\d{1,3}([,.]\\d{3})+$/.test(e.textContent.trim()) || "
+                "/pricing unavailable/i.test(e.textContent.trim())))",
+                timeout=5_000,
             )
         except Exception:  # noqa: BLE001 - absence is a real answer, not an error
-            logger.info("futwiz: fiyat dugumu 12 sn icinde gorunmedi")
+            logger.info("futwiz: fiyat dugumu 5 sn icinde gorunmedi")
 
     def _pick_pc(self, blocks: list[dict]) -> tuple[int | None, str | None]:
         """Choose the PC figure out of the platform price blocks."""
@@ -189,11 +188,13 @@ class FutwizProvider:
                 return block
         return None
 
-    async def _resolve_id(self, card: CatalogCard) -> tuple[int, str]:
-        """eaId -> FUTWIZ id, cached permanently after the first lookup."""
+    async def _open_card(self, card: CatalogCard) -> tuple[Page, str]:
+        """Open the exact card once; keep its verified page for the price read."""
         cached = self._repo.futwiz_id(card.ea_id)
         if cached:
-            return cached
+            futwiz_id, slug = cached
+            url = f"{BASE}/en/fc{GAME}/player/{slug}/{futwiz_id}"
+            return await self._open(url), url
 
         candidates = await self._search(card.name)
         if not candidates:
@@ -213,14 +214,20 @@ class FutwizProvider:
             page = await self._open(url)
             try:
                 ids = await page.evaluate(_CARD_ID_JS)
-            finally:
+            except Exception:
                 await self._pool.release(page)
+                raise
             if ids.get("Card ID") == card.ea_id:
-                self._repo.set_futwiz_id(card.ea_id, candidate["id"], candidate["slug"])
+                try:
+                    self._repo.set_futwiz_id(card.ea_id, candidate["id"], candidate["slug"])
+                except Exception:
+                    await self._pool.release(page)
+                    raise
                 logger.info(
                     "futwiz eslesme: eaId=%s -> futwizId=%s", card.ea_id, candidate["id"]
                 )
-                return candidate["id"], candidate["slug"]
+                return page, url
+            await self._pool.release(page)
 
         raise PriceUnavailable(
             self.name,

@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FC 27 SBC & Gem Solver</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css?v=5" />
+  <style>
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+    @media (max-width: 900px) {
+      .container { grid-template-columns: 1fr; }
+    }
+    .panel-sbc {
+      background: var(--surface-1);
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+    }
+    .panel-gems {
+      background: var(--surface-1);
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+    }
+    .input-group { margin-bottom: 15px; }
+    .input-group label { display: block; margin-bottom: 8px; font-size: 14px; color: var(--muted); }
+    .input-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background-color: var(--surface-2);
+      color: var(--text-main);
+    }
+    .btn {
+      background: var(--gold);
+      color: #1a1a1a;
+      border: none;
+      padding: 12px 20px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+    }
+    .btn:hover { opacity: 0.9; }
+    .gem-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      background: var(--surface-2);
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border-left: 4px solid var(--gold);
+    }
+    .gem-info { display: flex; align-items: center; gap: 10px; }
+    .gem-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+    .gem-score { font-weight: bold; color: var(--gold); }
+    .gem-prices { text-align: right; font-size: 12px; color: var(--muted); }
+    .nav-link { color: var(--gold); text-decoration: none; margin-bottom: 20px; display: inline-block; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="grid-column: 1 / -1;">
+      <a href="/" class="nav-link">← Ana Sayfaya Dön</a>
+      <h1 style="margin: 0; font-family: 'Sora', sans-serif;">FC 27 SBC / Gem Solver</h1>
+    </div>
+
+    <!-- SBC Solver Bölümü -->
+    <div class="panel-sbc">
+      <header class="panel-head" style="margin-bottom:20px;">
+        <span class="eyebrow">Smart Builder</span>
+        <h2>SBC Solver</h2>
+        <p style="color:var(--muted); font-size:14px; margin-top:5px;">Kulübündeki untradeable kartları ve piyasadaki konsept kartları kullanarak en ucuz çözümü bulur.</p>
+      </header>
+
+      <div class="input-group"><label for="sbc-mode">SBC türü</label><select id="sbc-mode"><option value="NORMAL">Normal</option><option value="STREAMLINED">Streamlined</option></select></div>
+      <div class="input-group" id="rating-controls">
+        <label>Hedef Reyting (Target Rating)</label>
+        <input type="number" id="sbc-min-rating" value="84">
+      </div>
+      <div class="input-group" id="score-controls" hidden><label for="sbc-target-score">Hedef Item Score</label><input type="number" id="sbc-target-score" value="100" min="1"></div>
+
+      <div class="input-group" style="display: flex; gap: 15px; align-items: center;">
+        <label style="display: flex; align-items: center; gap: 5px; margin: 0;">
+          <input type="checkbox" id="protect-expensive" checked style="width: auto;">
+          Pahalı Kartları Koru (>50k)
+        </label>
+        <label style="display: flex; align-items: center; gap: 5px; margin: 0;">
+          <input type="checkbox" id="prefer-untradeable" checked style="width: auto;">
+          Satılamazları Tercih Et
+        </label>
+      </div>
+      <div class="input-group"><label for="completion-count">Çözüm sayısı</label><input type="number" id="completion-count" value="1" min="1" max="5"></div>
+      <button id="undo-btn" type="button" disabled>Undo</button>
+      <div id="swap-modal" hidden><h3>Swap candidates</h3><div id="swap-candidates"></div><button id="swap-close" type="button">Close</button></div>
+
+      <div class="input-group" style="display:none;">
+        <label>Minimum Kimya</label>
+        <input type="number" id="sbc-min-chem" value="0">
+      </div>
+
+      <button id="sbc-solve-btn" class="btn">🔍 En Ucuz Kadroyu Bul</button>
+
+      <div style="margin-top:20px;">
+        <p id="sbc-status" style="font-size:14px; color:var(--muted); text-align:center;"></p>
+        <strong id="sbc-validity"></strong>
+        <span id="sbc-solver-status"></span>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-weight:bold;">
+          <span id="res-rating"></span>
+          <span id="res-chem"></span>
+          <span id="res-score"></span>
+          <span id="res-completions"></span>
+          <span id="sbc-total-cost" style="color:var(--gold);"></span>
+        </div>
+        <div id="sbc-results-container" style="display:flex; flex-direction:column; gap:10px;"></div>
+      </div>
+    </div>
+
+    <!-- Gem Solver Bölümü -->
+    <div class="panel-gems">
+      <header class="panel-head" style="margin-bottom:20px;">
+        <span class="eyebrow">Market Analysis</span>
+        <h2>Item Score & Gem Finder</h2>
+        <p style="color:var(--muted); font-size:14px; margin-top:5px;">Piyasadaki "Fodder" (SBC yem) fiyatlarını analiz edip, reytingine göre en ucuz olan gizli mücevherleri (Gems) bulur.</p>
+      </header>
+
+      <button id="gem-scan-btn" class="btn" style="background:#4caf50; color:white;">💎 Gem Taramasını Başlat</button>
+
+      <div style="margin-top:20px;">
+        <p id="gem-status" style="font-size:14px; color:var(--muted); text-align:center;"></p>
+
+        <h4 style="margin:15px 0 10px; color:var(--text-main);">Fodder Baseline Fiyatları</h4>
+        <div id="fodder-prices" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;"></div>
+
+        <h4 style="margin:15px 0 10px; color:var(--text-main);">En İyi Gem'ler (Item Score > 1.0)</h4>
+        <div id="gems-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/sbc.js"></script>
+  <script>
+    document.getElementById('gem-scan-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('gem-scan-btn');
+      const status = document.getElementById('gem-status');
+      const fodderContainer = document.getElementById('fodder-prices');
+      const gemsContainer = document.getElementById('gems-container');
+
+      btn.disabled = true;
+      btn.innerText = "Taranıyor... ⏳";
+      status.innerText = "Veritabanındaki tüm fiyatlar fodder baz çizgisine göre analiz ediliyor...";
+
+      try {
+        const res = await fetch('/api/sbc/gems');
+        const data = await res.json();
+
+        if (data.status === "success") {
+          status.innerText = `${data.gems.length} adet Gem bulundu! (Score ne kadar yüksekse o kadar kârlı)`;
+
+          // Render Fodder Prices
+          fodderContainer.innerHTML = '';
+          Object.entries(data.fodder_prices).forEach(([rtg, price]) => {
+            const el = document.createElement('div');
+            el.style.background = 'var(--surface-2)';
+            el.style.padding = '5px 10px';
+            el.style.borderRadius = '4px';
+            el.style.fontSize = '12px';
+            el.innerHTML = `<strong style="color:var(--text-main);">${rtg}</strong>: ${Math.round(price).toLocaleString('tr-TR')} 🪙`;
+            fodderContainer.appendChild(el);
+          });
+
+          // Render Gems
+          gemsContainer.innerHTML = '';
+          if (data.gems.length === 0) {
+            gemsContainer.innerHTML = '<p style="color:var(--muted); font-size:14px;">Şu an markette fırsat bulunmuyor.</p>';
+          } else {
+            data.gems.forEach(gem => {
+              const el = document.createElement('div');
+              el.className = 'gem-card';
+              el.innerHTML = `
+                <div class="gem-info">
+                  <img src="${gem.image_url || ''}" class="gem-img" onerror="this.src=''">
+                  <div>
+                    <div style="font-size:15px; font-weight:bold;">${gem.rating} ${gem.name}</div>
+                    <div style="font-size:12px; color:var(--muted);">${gem.position || 'Bilinmiyor'}</div>
+                  </div>
+                </div>
+                <div style="text-align:right;">
+                  <div class="gem-score">Score: ${gem.score.toFixed(2)}</div>
+                  <div class="gem-prices">Fiyat: <b>${gem.price.toLocaleString('tr-TR')}</b> (Fodder: ${gem.baseline.toLocaleString('tr-TR')})</div>
+                </div>
+              `;
+              gemsContainer.appendChild(el);
+            });
+          }
+        } else {
+          status.innerText = "Hata oluştu.";
+        }
+      } catch (e) {
+        status.innerText = "Bağlantı hatası: " + e.message;
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "💎 Gem Taramasını Başlat";
+      }
+    });
+  </script>
+</body>
+</html>

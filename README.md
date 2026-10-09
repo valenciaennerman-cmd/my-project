@@ -1,7 +1,7 @@
 # FC 27 Fiyat Aracı
 
 Oyunda bir kart görürsün, ekran görüntüsünü alırsın, tarayıcıdaki sayfada saniyeler
-içinde **PC piyasasındaki en düşük BIN fiyatı** ve %5 vergi sonrası eline geçecek
+içinde **PC piyasası fiyatı** ve %5 vergi sonrası eline geçecek
 tutarı görürsün. Local çalışır, Windows için.
 
 - Klasör izleme (yeni ekran görüntüsü) **veya** pano (Win+Shift+S) ile yakalama
@@ -71,6 +71,7 @@ Kodlamadan önce dört kaynak ölçüldü (`research/FINDINGS.md` ham sonuçlar 
 |---|---|---|---|
 | FUTBIN | 403 Cloudflare (`robots.txt` dahil) | 15.5 sn sonra hâlâ challenge | — |
 | FUT.GG | 200, metadata tam SSR | fiyat 1.2 sn'de geliyor | **yok, sadece `ps5`** |
+| FUTNext | 200, doğrudan kart kimliğiyle fiyat | gerekmiyor | **var** |
 | FUTWIZ | 403 Cloudflare | aralıklı geçiyor, ~1.5 sn | **var** |
 | FUTDatabase | 401 (key gerekli) | — | var ama **premium, €79/ay** |
 
@@ -78,9 +79,8 @@ Kodlamadan önce dört kaynak ölçüldü (`research/FINDINGS.md` ham sonuçlar 
 
 1. **FC 27'de PC ayrı bir transfer marketi** (PS ve Xbox ortak). Fark kozmetik
    değil: Iniesta 92 Icon ölçümünde konsol **1.370.000**, PC **2.850.000**.
-   Bu yüzden birincil kaynak FUTWIZ (PC). FUT.GG yedek olarak duruyor ama
-   döndürdüğü fiyat arayüzde açıkça **"KONSOL fiyatı, PC değil"** diye
-   işaretlenir.
+   Bu yüzden varsayılan fiyat kaynağı FUTNext (PC). Konsol fiyatı
+   kullanılmaz; PC fiyatı yoksa kart ve neden gösterilir.
 2. **FUTBIN kullanılmıyor.** Her isteğe Cloudflare duvarı çıkıyor, headless
    tarayıcı da geçemiyor. Geçmek için bot korumasını aktif olarak kırmak
    gerekirdi; yapılmadı. Bu yüzden FUTBIN linki yapıştırırsan uygulama
@@ -90,6 +90,11 @@ FUT.GG'nin fiyat ucu (`/api/fut/player-prices/...?verify=<imza>`) hem
 robots.txt'te kapalı hem imzalı; o imza akışı taklit edilmiyor. Katalog için
 sadece robots'un açık bıraktığı `/players/...` sayfaları ve crawler'lar için
 yayınlanan sitemap kullanılıyor.
+
+FUTNext'in PC fiyat ucu yerel uygulamada kart başına kullanılır; EA hesabı veya
+Companion oturumu gönderilmez. Bu uç herkese açık bir geliştirici API'si olarak
+belgelenmiş değildir; yoğun veya yayımlanmış kullanım için FUTNext'ten izin
+alınmalıdır. FUTWIZ istenirse yavaş bir PC yedeği olarak ayarlanabilir.
 
 ### Tarayıcı neden görünür (headless değil)
 
@@ -118,9 +123,9 @@ kırılmıyor — sadece normal bir tarayıcı kullanılıyor.
 | Zidane 94 Icon (2) | yok | 5.500.000 |
 | Pelé 95 Icon | 8.999.000 | 6.960.000 |
 
-PC yoksa uygulama konsol fiyatına düşer ve **açıkça uyarır**. Fark 2 katına
-çıkabildiği için bu uyarı önemli — sessizce konsol fiyatı göstermek, fiyat
-göstermemekten kötü olurdu.
+PC yoksa uygulama konsol fiyatına düşmez; kartı ve fiyatın neden alınamadığını
+gösterir. 15 dakikadan eski PC önbelleği de güncel fiyat gibi sunulmaz.
+Fark 2 katına çıkabildiği için konsol fiyatı PC yerine kullanılmaz.
 
 **Kaynaklara nazik davranılıyor:** aynı anda tek sayfa yüklenir, yüklemeler
 arasında en az `BROWSER_MIN_INTERVAL` saniye beklenir, çerezler kalıcı tarayıcı
@@ -183,8 +188,9 @@ app/
     matching/links.py      yapıştırılan linkten kart kimliği
     prices/base.py         PriceProvider arayüzü
     prices/browser.py      paylaşılan, nazik Playwright havuzu
-    prices/futwiz.py       PC fiyatı (birincil)
-    prices/futgg.py        konsol fiyatı (yedek)
+    prices/futnext.py      PC fiyatı (varsayılan)
+    prices/futwiz.py       isteğe bağlı PC yedeği
+    prices/futgg.py        eski konsol sağlayıcısı (PC modunda devre dışı)
     prices/chain.py        önbellek + yedek zinciri
     prices/registry.py     kaynakların bağlandığı tek yer
   static/                  tek sayfa arayüz
@@ -249,10 +255,11 @@ BUILDERS = {
 **3. Sıraya koy** — `.env`:
 
 ```ini
-PRICE_PROVIDERS=mysite,futwiz,futgg
+PRICE_PROVIDERS=mysite,futwiz
 ```
 
-İlk başarılı kaynak kazanır; başarısız olanların sebepleri arayüzde listelenir.
+Yalnızca `platform="pc"` bildiren kaynaklar kabul edilir. İlk başarılı PC kaynağı
+kazanır; başarısız olanların sebepleri arayüzde listelenir.
 Hepsi başarısız olursa bayat önbellek değeri yaşıyla birlikte gösterilir.
 
 Bir siteyi HTML'den okuyorsan `BrowserPool.open()` kullan (tek seferde tek
@@ -270,7 +277,7 @@ ve `pool`'u hiç açma — daha hızlı ve daha az yük.
 | `WATCH_DIR` | `%USERPROFILE%\Pictures\Screenshots` | İzlenen klasör |
 | `WATCH_EXTENSIONS` | `.png,.jpg,.jpeg` | Alınacak uzantılar |
 | `CLIPBOARD_ENABLED` | `true` | Pano yakalama |
-| `PRICE_PROVIDERS` | `futwiz,futgg` | Kaynak sırası |
+| `PRICE_PROVIDERS` | `futnext` | PC fiyat kaynağı sırası |
 | `PRICE_CACHE_TTL` | `420` | Fiyatın taze sayıldığı süre (sn) |
 | `BROWSER_MIN_INTERVAL` | `6.0` | İki sayfa yüklemesi arası en az bekleme |
 | `BROWSER_CHALLENGE_TIMEOUT` | `25.0` | Bot doğrulaması için sabır süresi |
@@ -312,7 +319,7 @@ görüntüleri genelde `%USERPROFILE%\Videos\Captures` veya
 saniye). `POST /api/catalog/sync?force=true` ile yeniden tetiklenir.
 
 **"FUTWIZ bu kart için PC fiyatı yayınlamıyor"** — hata değil, FUTWIZ'in
-kendi ifadesi. Uygulama konsol fiyatına düşer ve uyarıyı gösterir.
+kendi ifadesi. Kart gösterilir; konsol fiyatı kullanılmaz.
 
 **Fiyat yok ama kart doğru** — kart extinct olabilir, ya da FUTWIZ o an
 erişilemiyordur. Sebep kartın altında yazar; "Fiyatı yenile" ile tekrar dene.
@@ -321,8 +328,7 @@ erişilemiyordur. Sebep kartın altında yazar; "Fiyatı yenile" ile tekrar dene
 
 ## Bilinçli sınırlar
 
-- Sadece **PC** fiyatı hedeflenir; konsol fiyatı sadece yedek olarak ve açık
-  uyarıyla gösterilir.
+- Sadece **PC** fiyatı kullanılır. Konsol fiyatı yedek olarak gösterilmez.
 - EA'nın resmî olmayan web app uçları **kullanılmaz** (hesap ban riski).
 - Bot korumaları aşılmaya çalışılmaz.
 - Toplu katalog kazıma yapılmaz.

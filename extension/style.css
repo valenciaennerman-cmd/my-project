@@ -1,0 +1,104 @@
+#fc27-vip-panel {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background: #1e1e1e;
+    color: #fff;
+    border: 2px solid #e3c059;
+    border-radius: 8px;
+    z-index: 9999999;
+    width: 280px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.8);
+}
+.fc-header {
+    background: #e3c059;
+    color: #000;
+    padding: 12px;
+    font-weight: 900;
+    text-align: center;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    letter-spacing: 0.5px;
+}
+.fc-tabs {
+    display: flex;
+    background: #2a2a2a;
+    border-bottom: 1px solid #444;
+}
+.fc-tab {
+    flex: 1;
+    background: none;
+    border: none;
+    color: #888;
+    padding: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 13px;
+    transition: 0.2s;
+}
+.fc-tab.active {
+    color: #e3c059;
+    border-bottom: 2px solid #e3c059;
+    background: #333;
+}
+.fc-tab:hover {
+    color: #fff;
+}
+.fc-body {
+    padding: 15px;
+    font-size: 13px;
+}
+.fc-body ul {
+    padding-left: 15px;
+    margin: 10px 0;
+    list-style-type: square;
+}
+.fc-body li {
+    margin-bottom: 8px;
+}
+.fc-input {
+    background: #333;
+    border: 1px solid #555;
+    color: #fff;
+    padding: 8px;
+    border-radius: 4px;
+    outline: none;
+}
+.fc-btn {
+    background: #e3c059;
+    color: #000;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.fc-btn:hover {
+    background: #f4d06a;
+}
+.fc-player-list {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #444;
+    border-radius: 4px;
+    background: #252525;
+}
+.fc-player-row {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid #333;
+    gap: 8px;
+}
+.fc-player-row:last-child {
+    border-bottom: none;
+}
+/* Scrollbar */
+.fc-player-list::-webkit-scrollbar {
+    width: 6px;
+}
+.fc-player-list::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 4px;
+}

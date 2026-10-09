@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     host: str = Field(default="127.0.0.1", alias="HOST")
     port: int = Field(default=8027, alias="PORT")
 
-    price_providers: str = Field(default="futwiz,futgg", alias="PRICE_PROVIDERS")
+    price_providers: str = Field(default="futnext", alias="PRICE_PROVIDERS")
     price_cache_ttl: int = Field(default=420, alias="PRICE_CACHE_TTL")
     browser_min_interval: float = Field(default=6.0, alias="BROWSER_MIN_INTERVAL")
     browser_challenge_timeout: float = Field(
@@ -55,6 +55,9 @@ class Settings(BaseSettings):
     browser_offscreen: bool = Field(default=True, alias="BROWSER_OFFSCREEN")
 
     ea_tax_rate: float = Field(default=0.05, alias="EA_TAX_RATE")
+
+    telegram_token: str = Field(default="", alias="TELEGRAM_TOKEN")
+    telegram_chat_id: str = Field(default="", alias="TELEGRAM_CHAT_ID")
 
     db_path: Path = Field(default=PROJECT_ROOT / "data" / "fc27.sqlite3")
     inbox_dir: Path = Field(default=PROJECT_ROOT / "data" / "inbox")

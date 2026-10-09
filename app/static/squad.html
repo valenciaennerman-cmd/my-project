@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FC 27 Kadro Oluşturucu</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <style>
+    /* Squad Builder styles */
+    .slot {
+        width: 110px; height: 160px; font-size: 16px;
+        background: rgba(0,0,0,0.5); border: 2px dashed rgba(255,255,255,0.3); border-radius: 8px;
+        display: flex; align-items: center; justify-content: center; position: relative;
+        color: rgba(255,255,255,0.7); font-weight: bold; font-size: 14px;
+        transition: all 0.2s; cursor: pointer;
+    }
+    .slot:hover { border-color: var(--gold); color: var(--gold); background: rgba(0,0,0,0.8); }
+    .tab-btn { background: transparent; border: none; font-size: 16px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; padding-bottom: 4px; }
+    .tab-btn.active { color: var(--text-main); border-bottom-color: var(--gold); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header class="topbar" role="banner">
+    <div class="brand">
+      <div class="brand-text">
+        <h1>FC&nbsp;27 <em>Fiyat Aracı</em></h1>
+      </div>
+    </div>
+
+    <div class="tabs" style="display:flex; gap: 20px; align-items:center; margin-left: 30px;">
+      <a href="/" class="btn tab-btn " style="text-decoration:none;">Fiyat Aracı</a>
+      <a href="/squad" class="btn tab-btn active" style="text-decoration:none;">Kadro Oluşturucu</a>
+      <a href="/tcp" class="btn tab-btn " style="text-decoration:none;">Trade</a>
+      <a href="/favorites" class="btn tab-btn " style="text-decoration:none;">Favoriler</a>
+      <a href="/calculator" class="btn tab-btn " style="text-decoration:none;">Hesaplayıcı</a>
+    </div>
+
+    <div class="topbar-actions" role="group">
+      <div class="live" aria-live="polite">
+        <span class="dot on"></span>
+        <span class="live-label">Canlı</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard" style="padding: 20px;">
+    <div id="view-squad" style="display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 900px; margin: 0 auto;">
+      <section class="panel">
+        <header class="panel-head">
+          <span class="eyebrow">Squad Builder</span>
+          <h2>FC 27 Kadro Oluşturucu</h2>
+          <p class="muted small">Oyuncuları arayıp sahaya ekleyin. Kimya, Reyting ve Fiyat otomatik hesaplanır.</p>
+        </header>
+        <div style="display: flex; justify-content: space-between; background: var(--surface-2); padding: 16px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--line);">
+           <div><span class="muted small">Reyting:</span> <strong style="font-size:24px;">0</strong></div>
+           <div><span class="muted small">Kimya:</span> <strong style="font-size:24px; color:var(--success);">0/33</strong></div>
+           <div><span class="muted small">Toplam Fiyat:</span> <strong style="font-size:24px; color:var(--gold);">0 🪙</strong></div>
+        </div>
+
+        <div style="margin-bottom:15px; display:flex; align-items:center; justify-content:space-between; width: 100%;">
+<div style="display:flex; align-items:center; gap:15px;">
+          <span class="muted font-weight:bold;">Diziliş Seç:</span>
+          <select id="formation-select" class="buy-input" style="width:200px;">
+            <option value="3-1-4-2">3-1-4-2</option>
+            <option value="3-4-1-2">3-4-1-2</option>
+            <option value="3-4-2-1">3-4-2-1</option>
+            <option value="3-5-2">3-5-2</option>
+            <option value="3-4-3">3-4-3</option>
+            <option value="4-1-2-1-2">4-1-2-1-2</option>
+            <option value="4-1-2-1-2(2)">4-1-2-1-2(2)</option>
+            <option value="4-1-3-2">4-1-3-2</option>
+            <option value="4-1-4-1">4-1-4-1</option>
+            <option value="4-2-1-3">4-2-1-3</option>
+            <option value="4-2-2-2">4-2-2-2</option>
+            <option value="4-2-3-1">4-2-3-1</option>
+            <option value="4-2-3-1(2)">4-2-3-1(2)</option>
+            <option value="4-2-4">4-2-4</option>
+            <option value="4-3-1-2">4-3-1-2</option>
+            <option value="4-3-2-1">4-3-2-1</option>
+            <option value="4-3-3">4-3-3</option>
+            <option value="4-3-3(2)">4-3-3(2)</option>
+            <option value="4-3-3(3)">4-3-3(3)</option>
+            <option value="4-3-3(4)">4-3-3(4)</option>
+            <option value="4-4-1-1(2)">4-4-1-1(2)</option>
+            <option value="4-4-2" selected>4-4-2</option>
+            <option value="4-4-2(2)">4-4-2(2)</option>
+            <option value="4-5-1">4-5-1</option>
+            <option value="4-5-1(2)">4-5-1(2)</option>
+            <option value="5-2-1-2">5-2-1-2</option>
+            <option value="5-2-3">5-2-3</option>
+            <option value="5-3-2">5-3-2</option>
+            <option value="5-4-1">5-4-1</option>
+          </select>
+        </div>
+
+</div>
+        <div class="pitch" id="pitch-container" style="background: #2a3c24; border-radius: 12px; height: 850px; position: relative; border: 2px solid #3c5433; display: flex; flex-direction: column; justify-content: space-around; padding: 20px;">
+           <div style="text-align:center; color: #fff; opacity:0.2; font-weight:bold; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); pointer-events: none; font-size: 40px; z-index:0;">FC 27 SQUAD BUILDER</div>
+           <!-- Slots will be rendered here by squad.js -->
+        </div>
+           <!-- Forward -->
+           <div style="display: flex; justify-content: center; gap: 40px; z-index: 2;">
+              <div class="slot">ST</div> <div class="slot">ST</div>
+           </div>
+           <!-- Midfield -->
+           <div style="display: flex; justify-content: center; gap: 40px; z-index: 2;">
+              <div class="slot">LM</div> <div class="slot">CM</div> <div class="slot">RM</div>
+           </div>
+           <!-- Defense -->
+           <div style="display: flex; justify-content: center; gap: 40px; z-index: 2;">
+              <div class="slot">LB</div> <div class="slot">CB</div> <div class="slot">CB</div> <div class="slot">RB</div>
+           </div>
+           <!-- GK -->
+           <div style="display: flex; justify-content: center; gap: 40px; z-index: 2;">
+              <div class="slot">GK</div>
+           </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="/static/squad.js?v=1790337261"></script>
+</body>
+</html>

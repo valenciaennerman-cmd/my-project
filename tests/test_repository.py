@@ -1,7 +1,7 @@
 """Storage behaviour: de-duplication, remembered corrections, catalog merges."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from app.models.tables import CatalogCard
 
@@ -188,6 +188,17 @@ class TestPriceCache:
 
     def test_missing_entry(self, repo):
         assert repo.cached_price(999, "pc") is None
+
+
+class TestPriceHistory:
+    def test_pc_filter_excludes_old_console_points(self, repo):
+        now = datetime.now(timezone.utc)
+        repo.record_price_point(1397, "pc", 2_850_000, "futwiz", now)
+        repo.record_price_point(1397, "console", 1_370_000, "futgg", now)
+
+        points = repo.price_history(1397, now - timedelta(hours=1), platform="pc")
+        assert [point.price for point in points] == [2_850_000]
+        assert repo.price_point_count(1397, platform="pc") == 1
 
 
 class TestMeta:

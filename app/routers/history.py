@@ -37,7 +37,7 @@ async def card_history(
 
     window = RANGES[range]
     since = datetime.now(timezone.utc) - window
-    points = repo.price_history(ea_id, since)
+    points = repo.price_history(ea_id, since, platform="pc")
     tax = settings.ea_tax_rate
 
     return {
@@ -57,5 +57,5 @@ async def card_history(
         # Totals let the UI say "0 in this window, 12 overall" instead of
         # looking broken on a fresh install.
         "in_range": len(points),
-        "total_recorded": repo.price_point_count(ea_id),
+        "total_recorded": repo.price_point_count(ea_id, platform="pc"),
     }

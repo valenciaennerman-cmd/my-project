@@ -11,9 +11,11 @@ from ..repository import Repository
 from .base import PriceProvider
 from .browser import BrowserPool
 from .futgg import FutGGPriceProvider
+from .futnext import FutnextProvider
 from .futwiz import FutwizProvider
 
 BUILDERS: dict[str, Callable[[BrowserPool, Repository], PriceProvider]] = {
+    "futnext": lambda pool, repo: FutnextProvider(),
     "futwiz": lambda pool, repo: FutwizProvider(pool, repo),
     "futgg": lambda pool, repo: FutGGPriceProvider(pool),
 }

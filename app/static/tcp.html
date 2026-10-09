@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OP TRADER - Fırsat Yazıcısı</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Sora:wght@600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/static/style.css?v=5" />
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: 'Manrope', sans-serif;
+      margin: 0;
+    }
+    .printer-container {
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .header-printer {
+      padding: 20px 20px 0 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .header-printer h2 {
+      color: #cca040;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+    .header-printer h1 {
+      font-size: 32px;
+      margin: 0 0 10px 0;
+      color: #fff;
+    }
+    .header-printer p {
+      color: #888;
+      margin-top: 0;
+      font-size: 14px;
+    }
+
+    /* Left Panel */
+    .panel-left {
+      width: 320px;
+      flex-shrink: 0;
+      background: #1e1e1e;
+      border-radius: 16px;
+      padding: 24px;
+      border: 2px solid #e6b741;
+      height: fit-content;
+    }
+    .panel-left h3 {
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+    }
+    .input-group {
+      margin-top: 20px;
+    }
+    .input-group label {
+      display: block;
+      color: #888;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .input-group input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #333;
+      color: #fff;
+      font-size: 24px;
+      padding: 5px 0;
+      outline: none;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .platform-toggle {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .btn-toggle {
+      flex: 1;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      color: #ccc;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-toggle.active {
+      background: #cca040;
+      color: #121212;
+      border-color: #cca040;
+    }
+    .print-btn {
+      width: 100%;
+      background: #cca040;
+      color: #121212;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+    .print-btn:hover { background: #e6b741; }
+
+    .search-box {
+      background: #111;
+      border: 1px solid #333;
+      padding: 12px;
+      border-radius: 8px;
+      width: 100%;
+      color: #fff;
+      margin-top: 20px;
+      box-sizing: border-box;
+    }
+
+    /* Middle Column */
+    .panel-middle {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .stats-row {
+      display: flex;
+      gap: 15px;
+    }
+    .stat-box {
+      flex: 1;
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 15px;
+    }
+    .stat-box label {
+      color: #888;
+      font-size: 12px;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .stat-box .val {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .stat-box .val.green { color: #4ade80; }
+
+    .trades-list {
+      background: #1e1e1e;
+      border-radius: 12px;
+      overflow-y: auto;
+      max-height: 700px;
+      padding: 10px;
+    }
+    .trade-item {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #2a2a2a;
+      cursor: pointer;
+      transition: background 0.2s;
+      border-radius: 8px;
+    }
+    .trade-item:hover, .trade-item.selected {
+      background: #2a2a2a;
+    }
+    .trade-item.selected {
+      border: 1px solid #cca040;
+    }
+    .trade-face {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #333;
+      margin-right: 15px;
+      object-fit: cover;
+    }
+    .trade-info {
+      flex: 1;
+    }
+    .trade-name {
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 4px 0;
+    }
+    .trade-meta {
+      font-size: 12px;
+      color: #888;
+      margin: 0;
+    }
+    .trade-price {
+      text-align: right;
+      margin-right: 15px;
+    }
+    .trade-price .max {
+      color: #cca040;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .trade-price .profit {
+      color: #4ade80;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .buy-btn {
+      background: transparent;
+      border: 1px solid #444;
+      color: #aaa;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* Right Panel */
+    .panel-right {
+      width: 350px;
+      flex-shrink: 0;
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 20px;
+      display: none; /* hidden until selected */
+      flex-direction: column;
+      gap: 15px;
+    }
+    .panel-right.active {
+      display: flex;
+    }
+    .detail-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .detail-face {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #333;
+      object-fit: cover;
+    }
+    .detail-info h3 { margin: 0 0 5px 0; color: #fff; }
+    .detail-info p { margin: 0; color: #888; font-size: 12px; }
+
+    .detail-boxes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .dbox {
+      background: #111;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .dbox label { color: #888; font-size: 11px; display: block; margin-bottom: 5px; }
+    .dbox .val { font-size: 18px; font-weight: bold; color: #fff; }
+    .dbox .val.yellow { color: #cca040; }
+    .dbox .val.green { color: #4ade80; }
+
+    .relist-btn {
+      width: 100%;
+      background: transparent;
+      border: 1px solid #cca040;
+      color: #cca040;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .relist-btn:hover { background: rgba(204, 160, 64, 0.1); }
+  </style>
+</head>
+<body>
+
+  <header class="topbar" role="banner" style="border-bottom: 1px solid #333; background: #121212;">
+    <div class="brand">
+      <div class="brand-text">
+        <h1 style="color:#fff;">FC&nbsp;27 <em>Fırsat Yazıcısı</em></h1>
+      </div>
+    </div>
+    <div class="tabs" style="display:flex; gap: 20px; align-items:center; margin-left: 30px;">
+      <a href="/" class="btn tab-btn " style="color:#aaa; text-decoration:none;">Fiyat Aracı</a>
+      <a href="/squad" class="btn tab-btn " style="color:#aaa; text-decoration:none;">Kadro Oluşturucu</a>
+      <a href="/tcp" class="btn tab-btn active" style="color:#cca040; border-bottom: 2px solid #cca040; text-decoration:none;">Trade</a>
+      <a href="/favorites" class="btn tab-btn " style="color:#aaa; text-decoration:none;">Favoriler</a>
+      <a href="/calculator" class="btn tab-btn " style="text-decoration:none;">Hesaplayıcı</a>
+    </div>
+  </header>
+
+  <div class="header-printer">
+    <h2>OP Trader</h2>
+    <h1>The Printer</h1>
+    <p>Bütçenizi girin ve alınacak kartların listesini yazdırın — alış fiyatı, satış hedefi ve kimya önerileriyle.</p>
+  </div>
+
+  <div class="printer-container">
+    <!-- Left Panel -->
+    <div class="panel-left">
+      <h3>🖨️ Yazdırma Ayarları</h3>
+      <div class="input-group">
+        <label>Bütçe</label>
+        <label style="color:#fff; font-size:14px;">Trade Bütçesi</label>
+        <input type="number" id="budget-input" value="100000" />
+      </div>
+
+      <div class="input-group">
+        <label>Platform</label>
+        <div class="platform-toggle">
+          <button class="btn-toggle active" id="btn-pc" onclick="setPlatform('pc')">PC</button>
+          <button class="btn-toggle" id="btn-console" onclick="setPlatform('console')">Konsol</button>
+        </div>
+      </div>
+
+      <button class="print-btn" onclick="printList()">
+        🖨️ Listeyi Yazdır
+      </button>
+
+      <input type="text" class="search-box" placeholder="Oyuncu ara..." />
+
+      <div style="margin-top: 30px; background: #111; padding: 15px; border-radius: 8px; border: 1px solid #333; color: #aaa; font-size: 13px; line-height: 1.5;">
+        <h4 style="color: #cca040; margin-top: 0; margin-bottom: 10px;">TCP Nasıl Çalışır?</h4>
+        <p style="margin-top: 0;">TCP, piyasa değerinin altında alıp "tembel alıcılara" ufak bir kârla satabileceğiniz fırsat kartlarının bir listesini verir.</p>
+
+        <b style="color: #fff;">Listeni Oluştur</b><br/>
+        Şunları girin:<br/>
+        · Trade bütçeniz 💰<br/>
+        · Platformunuz 🎮<br/>
+        Ardından TCP size en iyi fırsatları gösterir. Kartların güncel piyasa fiyatının üzerinde satılma ihtimalini analiz eder.<br/><br/>
+
+        <b style="color: #fff;">Satın Al</b><br/>
+        Her kart şunları gösterir:<br/>
+        · Maksimum Alış → ödemeniz gereken en yüksek tutar<br/>
+        · Satış Hedefi → önerilen listeleme fiyatı<br/>
+        · 10k Altı: 2-3 adet stoklayın<br/>
+        · 10k Üstü: 1 adet alın<br/><br/>
+
+        <b style="color: #fff;">Listele & Yenile</b><br/>
+        Her zaman önerilen Satış Hedefi fiyatından listeleyin. Satılmazsa:<br/>
+        → Listelemeyi yenileyin<br/>
+        → Birkaç denemeden sonra fiyatı %2-5 düşürün<br/>
+        → Hala satılmazsa, EA vergisini kurtarmak için "Zararına Çıkış" fiyatından satın ve başka karta geçin.<br/><br/>
+        <span style="color: #ffaa00;">⚠️ ÖNEMLİ:</span> Min. Açılış teklifini (Min Bid) olabildiğince yüksek tuttuğunuzdan emin olun. Aksi takdirde biri düşük teklif verip kartınızı zararına kapatabilir.
+      </div>
+    </div>
+
+    <!-- Middle Panel -->
+    <div class="panel-middle">
+      <div class="stats-row">
+        <div class="stat-box">
+          <label>Liste</label>
+          <div class="val" id="stat-listings">0</div>
+        </div>
+        <div class="stat-box">
+          <label>Harcanan</label>
+          <div class="val" id="stat-spend">0</div>
+        </div>
+        <div class="stat-box">
+          <label>Beklenen Kâr</label>
+          <div class="val green" id="stat-profit">+0</div>
+        </div>
+        <div class="stat-box">
+          <label>Ort. Marj</label>
+          <div class="val" id="stat-margin">0.0%</div>
+        </div>
+      </div>
+
+      <div class="trades-list" id="trades-container">
+        <div style="padding: 20px; color: #888; text-align: center;">Fırsatları görmek için "Listeyi Yazdır" butonuna tıklayın.</div>
+      </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="panel-right" id="detail-panel">
+      <div class="detail-header">
+        <img src="" class="detail-face" id="det-img" onerror="this.src='/static/placeholder.png'" />
+        <div class="detail-info">
+          <h3 id="det-name">Player Name</h3>
+          <p id="det-meta">85 · REGULAR</p>
+        </div>
+      </div>
+
+      <div class="detail-boxes" style="grid-template-columns: 1fr;">
+        <div class="dbox">
+          <label>Maksimum Alış</label>
+          <div class="val yellow" id="det-buy">MAX 0</div>
+          <div style="font-size:11px; color:#aaa; margin-top:5px;" id="det-qty">1 Adet</div>
+        </div>
+      </div>
+      <div class="detail-boxes">
+        <div class="dbox">
+          <label>Satış Hedefi</label>
+          <div class="val yellow" id="det-sell">0</div>
+        </div>
+        <div class="dbox">
+          <label>Vergi Sonrası Kâr</label>
+          <div class="val green" id="det-profit">+0</div>
+        </div>
+      </div>
+
+      <button class="relist-btn">🔄 Yeniden Listeleme Hatırlatıcısı</button>
+
+      <div class="detail-boxes" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 10px;">
+        <div class="dbox" style="padding: 10px;">
+          <label>Min Açılış</label>
+          <div class="val" style="font-size:14px; color:#cca040" id="det-minbid">0</div>
+        </div>
+        <div class="dbox" style="padding: 10px;">
+          <label>Zararına Çıkış</label>
+          <div class="val" style="font-size:14px;" id="det-breakeven">0</div>
+        </div>
+        <div class="dbox" style="padding: 10px;">
+          <label>Kimya</label>
+          <div class="val" style="font-size:11px;" id="det-chem">Basic</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <label style="color:#888; font-size:12px;">Fiyat Geçmişi (Temsili)</label>
+        <div style="height: 100px; border-bottom: 1px solid #444; border-left: 1px solid #444; display:flex; align-items:flex-end; gap: 5px; padding-left: 5px; margin-top:10px;">
+          <div style="width: 20px; height: 30%; background: #cca040;"></div>
+          <div style="width: 20px; height: 50%; background: #cca040;"></div>
+          <div style="width: 20px; height: 80%; background: #cca040;"></div>
+          <div style="width: 20px; height: 40%; background: #cca040;"></div>
+          <div style="width: 20px; height: 60%; background: #cca040;"></div>
+          <div style="width: 20px; height: 90%; background: #cca040;"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let currentPlatform = 'pc';
+    let recommendations = [];
+
+    function setPlatform(platform) {
+      currentPlatform = platform;
+      document.getElementById('btn-pc').classList.remove('active');
+      document.getElementById('btn-console').classList.remove('active');
+      document.getElementById('btn-' + platform).classList.add('active');
+    }
+
+    async function printList() {
+      const budget = parseInt(document.getElementById('budget-input').value) || 100000;
+      const container = document.getElementById('trades-container');
+
+      container.innerHTML = '<div style="padding: 20px; color: #888; text-align: center;">Piyasa analiz ediliyor...</div>';
+
+      try {
+        const res = await fetch('/api/tcp/recommendations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ budget, platform: currentPlatform })
+        });
+        const data = await res.json();
+
+        if(data.status === 'ok') {
+          recommendations = data.recommendations;
+
+          document.getElementById('stat-listings').innerText = data.stats.listings;
+          document.getElementById('stat-spend').innerText = data.stats.spend.toLocaleString();
+          document.getElementById('stat-profit').innerText = '+' + data.stats.expected_profit.toLocaleString();
+          document.getElementById('stat-margin').innerText = data.stats.avg_margin + '%';
+
+          renderTrades();
+        } else {
+          container.innerHTML = `<div style="padding: 20px; color: red;">Error: ${data.message}</div>`;
+        }
+      } catch(e) {
+        container.innerHTML = `<div style="padding: 20px; color: red;">Bağlantı Hatası</div>`;
+      }
+    }
+
+    function renderTrades() {
+      const container = document.getElementById('trades-container');
+      container.innerHTML = '';
+
+      if(recommendations.length === 0) {
+        container.innerHTML = '<div style="padding: 20px; color: #888; text-align: center;">Bu bütçeye uygun fırsat bulunamadı.</div>';
+        return;
+      }
+
+      recommendations.forEach((r, idx) => {
+        const div = document.createElement('div');
+        div.className = 'trade-item';
+        div.onclick = () => selectTrade(idx, div);
+
+        const imgUrl = r.image_url ? r.image_url : '/static/placeholder.png';
+
+        div.innerHTML = `
+          <img src="${imgUrl}" class="trade-face" onerror="this.src='/static/placeholder.png'" />
+          <div class="trade-info">
+            <h4 class="trade-name">${r.name}</h4>
+            <p class="trade-meta">${r.rating} · ${r.version}</p>
+          </div>
+          <div class="trade-price">
+            <div class="max">MAX ${(r.current_price/1000).toFixed(1)}K</div>
+            <div class="profit">+${r.profit}</div>
+          </div>
+          <button class="buy-btn">Listeye Ekle</button>
+        `;
+        container.appendChild(div);
+      });
+
+      if(recommendations.length > 0) {
+        selectTrade(0, container.firstChild);
+      }
+    }
+
+    function selectTrade(idx, el) {
+      document.querySelectorAll('.trade-item').forEach(e => e.classList.remove('selected'));
+      if(el) el.classList.add('selected');
+
+      const r = recommendations[idx];
+      const panel = document.getElementById('detail-panel');
+      panel.classList.add('active');
+
+      document.getElementById('det-img').src = r.image_url ? r.image_url : '/static/placeholder.png';
+      document.getElementById('det-name').innerText = r.name;
+      document.getElementById('det-meta').innerText = `${r.rating} · ${r.version}`;
+      document.getElementById('det-buy').innerText = `MAX ${(r.current_price/1000).toFixed(1)}K`;
+      document.getElementById('det-qty').innerText = `Adet: ${r.qty}`;
+      document.getElementById('det-sell').innerText = `${(r.target_sell/1000).toFixed(1)}K`;
+      document.getElementById('det-profit').innerText = `+${r.profit}`;
+
+      document.getElementById('det-minbid').innerText = r.min_bid.toLocaleString();
+      document.getElementById('det-breakeven').innerText = r.break_even.toLocaleString();
+      document.getElementById('det-chem').innerText = r.chem_style;
+    }
+  </script>
+</body>
+</html>

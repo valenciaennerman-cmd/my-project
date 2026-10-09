@@ -398,4 +398,9 @@ def _card_payload(card: CatalogCard) -> dict:
         "rarity_name": card.rarity_name,
         "image_url": card.image_url,
         "url": card.url,
+        "skill_moves": getattr(card, "skill_moves", None),
+        "weak_foot": getattr(card, "weak_foot", None),
+        "club_name": getattr(card, "club_name", None),
+        "league_name": getattr(card, "league_name", None),
+        "nation_name": getattr(card, "nation_name", None),
     }

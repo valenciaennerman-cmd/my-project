@@ -17,6 +17,9 @@ router = APIRouter(tags=["system"])
 class CaptureBody(BaseModel):
     enabled: bool
 
+class AlarmBody(BaseModel):
+    message: str
+
 
 @router.get("/api/status")
 async def status() -> dict:
@@ -71,3 +74,10 @@ async def set_clipboard(body: CaptureBody) -> dict:
     status = state.clipboard.status()
     state.bus.publish("clipboard", status)
     return status
+
+@router.post("/api/alarm")
+async def send_alarm(body: AlarmBody) -> dict:
+    if state.telegram:
+        await state.telegram.send_alarm(body.message)
+        return {"status": "sent"}
+    return {"status": "telegram_not_configured"}

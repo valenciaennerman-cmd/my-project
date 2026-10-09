@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "FC 27 VIP Sniper",
+  "version": "1.2",
+  "description": "Özel FC 27 Web App Keskin Nişancı & SBC Eklentisi",
+  "host_permissions": [
+    "*://*.ea.com/*",
+    "http://127.0.0.1:8027/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.ea.com/*"],
+      "js": ["content.js"],
+      "css": ["style.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["inject.js"],
+      "matches": ["*://*.ea.com/*"]
+    }
+  ]
+}

@@ -18,12 +18,16 @@ from ...models.tables import CatalogCard
 from .base import PriceProvider, PriceUnavailable
 
 logger = logging.getLogger(__name__)
+MAX_STALE_SECONDS = 900
 
 
 class PriceService:
     def __init__(
         self, providers: list[PriceProvider], repo: Repository, cache_ttl: int = 420
     ) -> None:
+        non_pc = [p.name for p in providers if p.platform != "pc"]
+        if non_pc:
+            raise ValueError(f"Yalnizca PC fiyat kaynaklari kullanilabilir: {', '.join(non_pc)}")
         self._providers = providers
         self._repo = repo
         self._ttl = cache_ttl
@@ -55,7 +59,7 @@ class PriceService:
         """The freshest non-expired quote for this card, if any."""
         for provider in self._providers:
             quote = self._cached(ea_id, provider.platform)
-            if quote is not None and quote.age_seconds < self._ttl:
+            if quote is not None and quote.source == provider.name and quote.age_seconds < self._ttl:
                 return quote
         return None
 
@@ -89,6 +93,12 @@ class PriceService:
                 )
                 continue
 
+            if quote.platform != "pc":
+                failures.append(
+                    PriceFailure(source=provider.name, reason="Kaynak PC disi fiyat dondurdu.")
+                )
+                continue
+
             self._repo.store_price(
                 ea_id=card.ea_id, platform=quote.platform, source=quote.source,
                 price=quote.price, is_extinct=quote.is_extinct, note=quote.note,
@@ -103,10 +113,10 @@ class PriceService:
                 )
             return quote, failures
 
-        # Everything failed -- a stale number with an honest age beats nothing.
+        # Never present an hours-old figure as a usable market price.
         for provider in self._providers:
             stale = self._cached(card.ea_id, provider.platform)
-            if stale is not None:
+            if stale is not None and stale.source == provider.name and stale.age_seconds <= max(self._ttl, MAX_STALE_SECONDS):
                 logger.info(
                     "tum kaynaklar basarisiz; %.0f sn eski cache kullaniliyor",
                     stale.age_seconds,

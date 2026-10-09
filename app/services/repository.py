@@ -300,12 +300,11 @@ class Repository:
             row.recorded_at = _aware(row.recorded_at)
         return rows
 
-    def price_point_count(self, ea_id: int) -> int:
+    def price_point_count(self, ea_id: int, platform: str | None = None) -> int:
         with session_scope(self._engine) as session:
+            statement = select(func.count()).select_from(PricePoint).where(PricePoint.ea_id == ea_id)
+            if platform:
+                statement = statement.where(PricePoint.platform == platform)
             return int(
-                session.exec(
-                    select(func.count())
-                    .select_from(PricePoint)
-                    .where(PricePoint.ea_id == ea_id)
-                ).one()
+                session.exec(statement).one()
             )

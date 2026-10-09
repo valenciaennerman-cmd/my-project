@@ -4,8 +4,8 @@ from app.services.sbc.multi_completion import MultiCompletionEngine
 
 def test_single_completion():
     pool = [
-        CanonicalPlayer(item_id="1", name="A", rating=80, market_price=1000),
-        CanonicalPlayer(item_id="2", name="B", rating=80, market_price=1000)
+        CanonicalPlayer(definition_id="1", name="A", rating=80, market_price=1000),
+        CanonicalPlayer(definition_id="2", name="B", rating=80, market_price=1000)
     ]
     challenge = NormalizedChallenge(challenge_id="c1", name="Test", type="NORMAL", required_player_count=1)
     
@@ -17,8 +17,8 @@ def test_single_completion():
 
 def test_two_completions_no_reuse():
     pool = [
-        CanonicalPlayer(item_id="1", name="A", rating=80, market_price=1000),
-        CanonicalPlayer(item_id="2", name="B", rating=80, market_price=1000)
+        CanonicalPlayer(definition_id="1", name="A", rating=80, market_price=1000),
+        CanonicalPlayer(definition_id="2", name="B", rating=80, market_price=1000)
     ]
     challenge = NormalizedChallenge(challenge_id="c1", name="Test", type="NORMAL", required_player_count=1)
     
@@ -28,11 +28,11 @@ def test_two_completions_no_reuse():
     assert len(completions) == 2
     assert len(completions[0]) == 1
     assert len(completions[1]) == 1
-    assert completions[0][0].item_id != completions[1][0].item_id
+    assert completions[0][0].definition_id != completions[1][0].definition_id
 
 def test_n_completions_not_enough_players():
     pool = [
-        CanonicalPlayer(item_id="1", name="A", rating=80, market_price=1000)
+        CanonicalPlayer(definition_id="1", name="A", rating=80, market_price=1000)
     ]
     challenge = NormalizedChallenge(challenge_id="c1", name="Test", type="NORMAL", required_player_count=1)
     
@@ -43,8 +43,8 @@ def test_n_completions_not_enough_players():
     
 def test_streamlined_multi_completion():
     pool = [
-        CanonicalPlayer(item_id="1", name="A", rating=80, item_score=50, market_price=1000),
-        CanonicalPlayer(item_id="2", name="B", rating=80, item_score=50, market_price=1000)
+        CanonicalPlayer(definition_id="1", name="A", rating=80, item_score=50, market_price=1000),
+        CanonicalPlayer(definition_id="2", name="B", rating=80, item_score=50, market_price=1000)
     ]
     challenge = NormalizedChallenge(
         challenge_id="c2", 
@@ -60,4 +60,4 @@ def test_streamlined_multi_completion():
     assert len(completions) == 2
     assert len(completions[0]) == 1
     assert len(completions[1]) == 1
-    assert completions[0][0].item_id != completions[1][0].item_id
+    assert completions[0][0].definition_id != completions[1][0].definition_id

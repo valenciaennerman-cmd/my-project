@@ -682,7 +682,6 @@ kbd {
 
 .note { margin: 0; padding-left: 4px; }
 .note:empty { display: none; }
-.note.warn { color: var(--warn); }
 .note.bad  { color: var(--bad); }
 .note.muted { color: var(--muted); }
 
@@ -783,88 +782,6 @@ kbd {
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-/* ============================== HIDDEN HISTORY ======================== */
-/* ---------- Son taramalar ---------------------------------------------- */
-.history-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
-.history-count {
-  font-family: var(--font-num);
-  font-variant-numeric: tabular-nums;
-  font-size: 12px;
-  color: var(--muted, #8b8f9c);
-  white-space: nowrap;
-}
-
-.history { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-
-.h-row {
-  display: grid;
-  grid-template-columns: 46px 34px minmax(0, 1fr) auto;
-  gap: 14px;
-  align-items: center;
-  padding: 8px 12px;
-  border-radius: 12px;
-  border: 1px solid transparent;
-  background: var(--surface-2);
-  cursor: pointer;
-  transition: border-color .15s ease, background .15s ease, transform .12s ease;
-}
-.h-row:hover { border-color: var(--line-strong); background: var(--surface-3); }
-.h-row:active { transform: translateY(1px); }
-.h-row.is-current { border-color: var(--gold-line); background: var(--gold-tint); }
-
-.h-time {
-  font-family: var(--font-num);
-  font-variant-numeric: tabular-nums;
-  font-size: 12.5px;
-  color: var(--muted, #8b8f9c);
-}
-
-.h-thumb {
-  width: 34px; height: 42px;
-  display: grid; place-items: center;
-  border-radius: 6px;
-  background: rgba(0,0,0,.28);
-  overflow: hidden;
-}
-.h-thumb img { width: 100%; height: 100%; object-fit: contain; }
-
-.h-main { display: grid; gap: 2px; min-width: 0; }
-.h-name {
-  font-size: 14px; font-weight: 650; color: var(--text);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.h-sub {
-  font-size: 12px;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-
-.h-price {
-  font-family: var(--font-num);
-  font-variant-numeric: tabular-nums;
-  font-size: 15px; font-weight: 700;
-  color: var(--gold);
-  white-space: nowrap;
-}
-/* A console figure is not this user's market -- never show it as if it were. */
-.h-price.is-console { color: var(--warn); }
-
-.h-tag {
-  margin-left: 8px;
-  font-size: 10.5px; font-weight: 700;
-  letter-spacing: .06em; text-transform: uppercase;
-  padding: 2px 7px; border-radius: 999px;
-  background: var(--surface-3); color: var(--muted, #8b8f9c);
-  vertical-align: middle;
-}
-.h-tag.tag-ambiguous { background: var(--warn-dim); color: var(--warn); }
-.h-tag.tag-no_match,
-.h-tag.tag-error     { background: #4a2020; color: var(--bad); }
-
-@media (max-width: 720px) {
-  .h-row { grid-template-columns: 44px minmax(0, 1fr) auto; }
-  .h-thumb { display: none; }
-}
-
 /* ============================== RESPONSIVE ============================ */
 @media (max-width: 900px) {
   .card-view { grid-template-columns: 1fr; padding: 22px; gap: 22px; }
@@ -963,3 +880,15 @@ kbd {
 @media (max-width: 720px) {
   .chart-head { align-items: flex-start; }
 }
+
+/* Squad Builder styles */
+.slot {
+    width: 80px; height: 110px;
+    background: rgba(0,0,0,0.5); border: 2px dashed rgba(255,255,255,0.3); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.7); font-weight: bold; font-size: 14px;
+    transition: all 0.2s; cursor: pointer;
+}
+.slot:hover { border-color: var(--gold); color: var(--gold); background: rgba(0,0,0,0.8); }
+.tab-btn { background: transparent; border: none; font-size: 16px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; padding-bottom: 4px; }
+.tab-btn.active { color: var(--text-main); border-bottom-color: var(--gold); font-weight: 600; }

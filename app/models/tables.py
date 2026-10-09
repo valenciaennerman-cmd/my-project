@@ -47,6 +47,14 @@ class CatalogCard(SQLModel, table=True):
     # otherwise-identical cards apart.
     version_label: str | None = None
     image_url: str | None = None
+
+    # Yeni eklenen Squad Builder alanlari
+    skill_moves: int | None = None
+    weak_foot: int | None = None
+    club_name: str | None = None
+    league_name: str | None = None
+    nation_name: str | None = None
+
     details_fetched: bool = Field(default=False)
 
     @property
@@ -133,3 +141,19 @@ class Meta(SQLModel, table=True):
 
     key: str = Field(primary_key=True)
     value: str
+
+
+class Investment(SQLModel, table=True):
+    """Yatırım portföyü tablosu."""
+
+    __tablename__ = "investment"
+
+    id: int | None = Field(default=None, primary_key=True)
+    ea_id: int = Field(index=True)
+    buy_price: int
+    quantity: int = Field(default=1)
+    status: str = Field(default="active") # active, sold
+    bought_at: datetime = Field(default_factory=utcnow)
+    sell_price: int | None = None
+    sold_at: datetime | None = None
+    target_price: int | None = None # Telegram alarmi icin

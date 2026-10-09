@@ -28,6 +28,7 @@ class AppState:
     prices: PriceService | None = None
     reader: CardReader | None = None
     service: ScanService | None = None
+    telegram: object | None = None
     folder: FolderWatcher | None = None
     clipboard: ClipboardWatcher | None = None
     vision_ready: bool = False

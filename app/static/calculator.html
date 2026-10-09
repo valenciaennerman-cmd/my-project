@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FC 27 Trade Hesaplayıcı</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Sora:wght@600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/static/style.css?v=4" />
+  <style>
+    .calc-container {
+        max-width: 500px;
+        margin: 40px auto;
+        background: var(--surface-1);
+        padding: 30px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+    }
+    .input-group {
+        margin-bottom: 20px;
+    }
+    .input-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: var(--muted);
+    }
+    .input-group input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background-color: var(--surface-2);
+        color: var(--text-main);
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+    .input-group input:focus {
+        outline: none;
+        border-color: var(--gold);
+    }
+    .result-box {
+        background-color: var(--surface-2);
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+        border-left: 4px solid var(--gold);
+    }
+    .result-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 15px;
+    }
+    .result-item.profit {
+        font-weight: bold;
+        font-size: 18px;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid var(--line);
+    }
+    .positive { color: #4CAF50; }
+    .negative { color: #f44336; }
+    .neutral { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header class="topbar" role="banner">
+    <div class="brand">
+      <div class="brand-text">
+        <h1>FC&nbsp;27 <em>Hesaplayıcı</em></h1>
+      </div>
+    </div>
+    <div class="tabs" style="display:flex; gap: 20px; align-items:center; margin-left: 30px;">
+      <a href="/" class="btn tab-btn" style="text-decoration:none;">Fiyat Aracı</a>
+      <a href="/squad" class="btn tab-btn" style="text-decoration:none;">Kadro Oluşturucu</a>
+      <a href="/tcp" class="btn tab-btn" style="text-decoration:none;">Trade</a>
+      <a href="/favorites" class="btn tab-btn" style="text-decoration:none;">Favoriler</a>
+      <a href="/calculator" class="btn tab-btn active" style="text-decoration:none;">Hesaplayıcı</a>
+    </div>
+    <div class="topbar-actions"></div>
+  </header>
+
+  <main class="layout" id="main" style="display:block;">
+    <div class="calc-container">
+        <h2 style="margin-top:0; color:var(--gold);">Trade Kar/Zarar Hesaplayıcı</h2>
+
+        <div class="input-group">
+            <label for="buyPrice">Alış Fiyatı (Coins)</label>
+            <input type="number" id="buyPrice" placeholder="Örn: 230000" oninput="calculate()">
+        </div>
+
+        <div class="input-group">
+            <label for="sellPrice">Satış Fiyatı (Coins)</label>
+            <input type="number" id="sellPrice" placeholder="Örn: 267000" oninput="calculate()">
+        </div>
+
+        <div class="result-box">
+            <div class="result-item">
+                <span>Satış Fiyatı:</span>
+                <span id="resSell">0</span>
+            </div>
+            <div class="result-item">
+                <span>EA Vergisi (5%):</span>
+                <span id="resTax" class="negative">0</span>
+            </div>
+            <div class="result-item">
+                <span>Ele Geçen:</span>
+                <span id="resNet">0</span>
+            </div>
+            <div class="result-item profit">
+                <span>Net Kar/Zarar:</span>
+                <span id="resProfit" class="neutral">0</span>
+            </div>
+            <div class="result-item profit" style="border-top:none; margin-top:0; padding-top:0;">
+                <span>Yüzdelik Kar:</span>
+                <span id="resPercent" class="neutral">%0</span>
+            </div>
+        </div>
+    </div>
+  </main>
+
+  <script>
+      function formatNumber(num) {
+          return num.toLocaleString('tr-TR');
+      }
+
+      function calculate() {
+          const buyPrice = parseFloat(document.getElementById('buyPrice').value) || 0;
+          const sellPrice = parseFloat(document.getElementById('sellPrice').value) || 0;
+
+          const tax = sellPrice * 0.05;
+          const netSell = sellPrice - tax;
+          const profit = netSell - buyPrice;
+
+          let percent = 0;
+          if (buyPrice > 0) {
+              percent = (profit / buyPrice) * 100;
+          }
+
+          document.getElementById('resSell').textContent = formatNumber(sellPrice);
+          document.getElementById('resTax').textContent = "-" + formatNumber(tax);
+          document.getElementById('resNet').textContent = formatNumber(netSell);
+
+          const profitEl = document.getElementById('resProfit');
+          const percentEl = document.getElementById('resPercent');
+
+          profitEl.textContent = formatNumber(profit);
+          percentEl.textContent = "%" + percent.toFixed(2);
+
+          if (profit > 0) {
+              profitEl.className = 'positive';
+              percentEl.className = 'positive';
+          } else if (profit < 0) {
+              profitEl.className = 'negative';
+              percentEl.className = 'negative';
+          } else {
+              profitEl.className = 'neutral';
+              percentEl.className = 'neutral';
+          }
+      }
+  </script>
+</body>
+</html>

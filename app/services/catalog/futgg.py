@@ -236,6 +236,12 @@ def _current_versions(html: str, exclude: int) -> list[CatalogCard]:
         label = rarity
         if holo and rarity:
             label = f"{rarity} {str(holo).title()} Holographic"
+        sm = scalar(block, "skillMoves")
+        wf = scalar(block, "weakFoot")
+        club = scalar(block, "clubName")
+        league = scalar(block, "leagueName")
+        nation = scalar(block, "nationName")
+
         out.append(
             CatalogCard(
                 ea_id=ea,
@@ -251,6 +257,11 @@ def _current_versions(html: str, exclude: int) -> list[CatalogCard]:
                 rarity_name=rarity,
                 version_label=label,
                 image_url=image if isinstance(image, str) else None,
+                skill_moves=int(sm) if sm else None,
+                weak_foot=int(wf) if wf else None,
+                club_name=str(club) if club else None,
+                league_name=str(league) if league else None,
+                nation_name=str(nation) if nation else None,
             )
         )
     return out
