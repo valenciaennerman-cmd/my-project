@@ -23,3 +23,17 @@ research/.pwprofile/
 # IDE
 .idea/
 .vscode/
+
+# Local patch / scratch files
+patch_*.py
+scratch/
+scratch_*.py
+
+# Temporary scraped pages / dumps
+futbin_players.html
+futgg_players.html
+futwiz.html
+trade_calculator.html
+
+# Temporary local tests
+test_playwright.py
