@@ -37,3 +37,10 @@ trade_calculator.html
 
 # Temporary local tests
 test_playwright.py
+
+# Local developer utilities
+check_db.py
+check_logs.py
+test_feeder.py
+extract.py
+parse.py
